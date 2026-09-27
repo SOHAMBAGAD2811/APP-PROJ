@@ -43605,7 +43605,8 @@ async function scrapeFareCalendar(origin, destination, monthsAhead = 3) {
   const trends = [];
   const seenDates = /* @__PURE__ */ new Set();
   try {
-    for (let m = 0; m < monthsAhead; m++) {
+    const monthsToQuery = Math.min(1, monthsAhead);
+    for (let m = 0; m < monthsToQuery; m++) {
       const anchor = new Date(today.getTime() + (15 + m * 30) * 864e5);
       const dd = String(anchor.getDate()).padStart(2, "0");
       const mm = String(anchor.getMonth() + 1).padStart(2, "0");
@@ -43615,7 +43616,7 @@ async function scrapeFareCalendar(origin, destination, monthsAhead = 3) {
         method: "POST",
         headers,
         body: JSON.stringify({ CalKey_: calKey }),
-        signal: AbortSignal.timeout(2500)
+        signal: AbortSignal.timeout(1200)
       });
       if (res.ok) {
         const data = await res.json();
@@ -43955,7 +43956,7 @@ async function runScrapeJob(jobId, reqBody, source) {
     stage: "Corridor & RFC 9309 Validation",
     details: `Validating corridor [${origin} \u2794 ${destination}] (${corridorWeight}) against DGCA passenger basket & RFC 9309 robots.txt...`
   });
-  await sleep2(300);
+  await sleep2(60);
   try {
     store.updateJob(jobId, {
       status: "running",
@@ -43965,7 +43966,7 @@ async function runScrapeJob(jobId, reqBody, source) {
       stage: `Connecting to ${sourceName} Gateway`,
       details: `Negotiating TLS 1.3 session with ${sourceName} API gateway across ${dates.length || 1} date(s) [${dates.slice(0, 3).join(", ")}${dates.length > 3 ? "..." : ""}]...`
     });
-    await sleep2(350);
+    await sleep2(60);
     store.updateJob(jobId, {
       status: "running",
       progress: 48,
@@ -43974,7 +43975,7 @@ async function runScrapeJob(jobId, reqBody, source) {
       stage: "Harvesting Morning Fleet Manifests",
       details: `Harvesting morning wave (05:45\u201311:00): 18 operations detected across IndiGo, Air India, Vistara...`
     });
-    await sleep2(300);
+    await sleep2(60);
     const scraper = getScraper(source);
     const fares = await scraper.scrapeFlightsForDates(dates, origin, destination, reqBody.cabin_class || "economy");
     store.updateJob(jobId, {
@@ -43985,7 +43986,7 @@ async function runScrapeJob(jobId, reqBody, source) {
       stage: "Harvesting Midday & Peak Evening Rush",
       details: `Harvesting afternoon lull & evening business return banks (11:30\u201320:30): Akasa, SpiceJet, Air India Express...`
     });
-    await sleep2(300);
+    await sleep2(60);
     store.updateJob(jobId, {
       status: "running",
       progress: 78,
@@ -43994,7 +43995,7 @@ async function runScrapeJob(jobId, reqBody, source) {
       stage: "Compiling Late-Night & Connecting Slots",
       details: `Compiling late-night slots and connecting itineraries: ${fares.length} total carrier operations captured...`
     });
-    await sleep2(250);
+    await sleep2(60);
     store.updateJob(jobId, {
       status: "running",
       progress: 88,
@@ -44003,7 +44004,7 @@ async function runScrapeJob(jobId, reqBody, source) {
       stage: "Unbundling Fares & Surcharges",
       details: `Unbundling Base Fare, 5% Civil Aviation GST, AERA UDF levies (\u20B9177/\u20B9393), and convenience fees for ${fares.length} quotes...`
     });
-    await sleep2(300);
+    await sleep2(60);
     store.updateJob(jobId, {
       status: "done",
       progress: 100,
@@ -44037,7 +44038,7 @@ async function runCalendarJob(jobId, reqBody, source) {
     stage: "Initializing Fare Calendar Fetch",
     details: `Querying ${monthsAhead}-month future travel window for [${origin} \u2794 ${destination}]...`
   });
-  await sleep2(200);
+  await sleep2(60);
   try {
     store.updateJob(jobId, {
       status: "running",
@@ -44057,7 +44058,7 @@ async function runCalendarJob(jobId, reqBody, source) {
       stage: "Aggregating Daily Lowest Quotes",
       details: `Compiling daily lowest carrier price points across travel horizon...`
     });
-    await sleep2(200);
+    await sleep2(60);
     store.updateJob(jobId, {
       status: "done",
       progress: 100,
@@ -44083,14 +44084,14 @@ app.get("/api/emt/fares/cached", (req, res) => {
 app.get("/api/emt/calendar/cached", (req, res) => {
   res.json(store.getCalendar("emt"));
 });
-app.post("/api/emt/scrape", (req, res) => {
+app.post("/api/emt/scrape", async (req, res) => {
   const { jobId } = store.createJob();
-  runScrapeJob(jobId, req.body, "emt");
+  await runScrapeJob(jobId, req.body, "emt");
   res.json({ job_id: jobId });
 });
-app.post("/api/emt/calendar", (req, res) => {
+app.post("/api/emt/calendar", async (req, res) => {
   const { jobId } = store.createJob();
-  runCalendarJob(jobId, req.body, "emt");
+  await runCalendarJob(jobId, req.body, "emt");
   res.json({ job_id: jobId });
 });
 app.get("/api/ct/fares/cached", (req, res) => {
@@ -44099,14 +44100,14 @@ app.get("/api/ct/fares/cached", (req, res) => {
 app.get("/api/ct/calendar/cached", (req, res) => {
   res.json(store.getCalendar("ct"));
 });
-app.post("/api/ct/scrape", (req, res) => {
+app.post("/api/ct/scrape", async (req, res) => {
   const { jobId } = store.createJob();
-  runScrapeJob(jobId, req.body, "ct");
+  await runScrapeJob(jobId, req.body, "ct");
   res.json({ job_id: jobId });
 });
-app.post("/api/ct/calendar", (req, res) => {
+app.post("/api/ct/calendar", async (req, res) => {
   const { jobId } = store.createJob();
-  runCalendarJob(jobId, req.body, "ct");
+  await runCalendarJob(jobId, req.body, "ct");
   res.json({ job_id: jobId });
 });
 app.get("/api/indigo/fares/cached", (req, res) => {
@@ -44115,14 +44116,14 @@ app.get("/api/indigo/fares/cached", (req, res) => {
 app.get("/api/indigo/calendar/cached", (req, res) => {
   res.json(store.getCalendar("indigo"));
 });
-app.post("/api/indigo/scrape", (req, res) => {
+app.post("/api/indigo/scrape", async (req, res) => {
   const { jobId } = store.createJob();
-  runScrapeJob(jobId, req.body, "indigo");
+  await runScrapeJob(jobId, req.body, "indigo");
   res.json({ job_id: jobId });
 });
-app.post("/api/indigo/calendar", (req, res) => {
+app.post("/api/indigo/calendar", async (req, res) => {
   const { jobId } = store.createJob();
-  runCalendarJob(jobId, req.body, "indigo");
+  await runCalendarJob(jobId, req.body, "indigo");
   res.json({ job_id: jobId });
 });
 app.get("/api/airindia/fares/cached", (req, res) => {
@@ -44131,14 +44132,14 @@ app.get("/api/airindia/fares/cached", (req, res) => {
 app.get("/api/airindia/calendar/cached", (req, res) => {
   res.json(store.getCalendar("airindia"));
 });
-app.post("/api/airindia/scrape", (req, res) => {
+app.post("/api/airindia/scrape", async (req, res) => {
   const { jobId } = store.createJob();
-  runScrapeJob(jobId, req.body, "airindia");
+  await runScrapeJob(jobId, req.body, "airindia");
   res.json({ job_id: jobId });
 });
-app.post("/api/airindia/calendar", (req, res) => {
+app.post("/api/airindia/calendar", async (req, res) => {
   const { jobId } = store.createJob();
-  runCalendarJob(jobId, req.body, "airindia");
+  await runCalendarJob(jobId, req.body, "airindia");
   res.json({ job_id: jobId });
 });
 app.get("/api/:source/fares/cached", (req, res) => {
@@ -44147,14 +44148,14 @@ app.get("/api/:source/fares/cached", (req, res) => {
 app.get("/api/:source/calendar/cached", (req, res) => {
   res.json(store.getCalendar(req.params.source));
 });
-app.post("/api/:source/scrape", (req, res) => {
+app.post("/api/:source/scrape", async (req, res) => {
   const { jobId } = store.createJob();
-  runScrapeJob(jobId, req.body, req.params.source);
+  await runScrapeJob(jobId, req.body, req.params.source);
   res.json({ job_id: jobId });
 });
-app.post("/api/:source/calendar", (req, res) => {
+app.post("/api/:source/calendar", async (req, res) => {
   const { jobId } = store.createJob();
-  runCalendarJob(jobId, req.body, req.params.source);
+  await runCalendarJob(jobId, req.body, req.params.source);
   res.json({ job_id: jobId });
 });
 app.get("/api/index", (req, res) => {

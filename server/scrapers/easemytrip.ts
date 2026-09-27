@@ -52,7 +52,8 @@ export async function scrapeFareCalendar(
   const seenDates = new Set<string>();
 
   try {
-    for (let m = 0; m < monthsAhead; m++) {
+    const monthsToQuery = Math.min(1, monthsAhead);
+    for (let m = 0; m < monthsToQuery; m++) {
       const anchor = new Date(today.getTime() + (15 + m * 30) * 86400000);
       const dd = String(anchor.getDate()).padStart(2, '0');
       const mm = String(anchor.getMonth() + 1).padStart(2, '0');
@@ -63,7 +64,7 @@ export async function scrapeFareCalendar(
         method: 'POST',
         headers,
         body: JSON.stringify({ CalKey_: calKey }),
-        signal: AbortSignal.timeout(2500),
+        signal: AbortSignal.timeout(1200),
       });
 
       if (res.ok) {

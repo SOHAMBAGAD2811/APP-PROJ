@@ -7,7 +7,9 @@
     "dev": "concurrently -k -p \"[{name}]\" -n \"API,WEB\" -c \"blue,green\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "vite",
     "dev:server": "tsx watch server/index.ts",
-    "build": "vite build",
+    "build": "vite build && npm run build:api",
+    "build:client": "vite build",
+    "build:api": "node scripts/build_api.js",
     "start": "tsx server/index.ts",
     "preview": "vite preview",
     "db:seed": "tsx scripts/seed_supabase.ts"
@@ -39,6 +41,7 @@
     "@vercel/node": "^3.2.0",
     "@vitejs/plugin-react": "^4.2.1",
     "concurrently": "^8.2.2",
+    "esbuild": "^0.20.2",
     "tsx": "^4.19.0",
     "typescript": "^5.4.5",
     "vite": "^5.0.0"

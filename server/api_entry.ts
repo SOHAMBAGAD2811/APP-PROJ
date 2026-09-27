@@ -1,9 +1,8 @@
 /**
- * api/index.ts
- * Vercel Serverless Function entry point for the AiRA API backend.
+ * server/api_entry.ts
+ * Serverless function entrypoint for Vercel deployment.
  */
-
-import app from '../server/app';
+import app from './app';
 
 export default function handler(req: any, res: any) {
   if (req.url && typeof req.url === 'string' && !req.url.startsWith('/api')) {

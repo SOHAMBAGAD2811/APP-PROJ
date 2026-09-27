@@ -5,6 +5,7 @@
 
 import { FlightFare, DailyFareTrend } from '../models';
 import { store } from '../store';
+import { generateFlightsForRouteDate } from './flightGenerator';
 
 export async function scrapeFareCalendar(
   origin: string,
@@ -41,8 +42,6 @@ export async function scrapeFareCalendar(
   store.saveCalendar('ct', trends);
   return trends;
 }
-
-import { generateFlightsForRouteDate } from './flightGenerator';
 
 export async function scrapeFlightsForDates(
   dates: string[],

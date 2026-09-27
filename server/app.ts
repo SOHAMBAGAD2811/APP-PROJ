@@ -18,12 +18,23 @@ import * as emtScraper from './scrapers/easemytrip';
 import * as ctScraper from './scrapers/cleartrip';
 import * as indigoScraper from './scrapers/indigo';
 import * as airindiaScraper from './scrapers/airindia';
-import { testSupabaseConnection, isSupabaseConfigured } from './supabase';
+import { testSupabaseConnection, isSupabaseConfigured, getSupabase } from './supabase';
 
 const app = express();
 
 app.use(cors({ origin: '*', methods: '*' }));
 app.use(express.json());
+
+// ── URL Normalization for Vercel Serverless Functions ───────────────────────
+app.use((req: Request, _res: Response, next) => {
+  const matchedPath = req.headers['x-matched-path'];
+  if (typeof matchedPath === 'string' && matchedPath.startsWith('/api')) {
+    req.url = matchedPath;
+  } else if (typeof req.url === 'string' && !req.url.startsWith('/api')) {
+    req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+  }
+  next();
+});
 
 // ── Shared endpoints ─────────────────────────────────────────────────────────
 
@@ -35,13 +46,39 @@ app.get('/api/airports', (req: Request, res: Response) => {
   res.json(CITIES);
 });
 
-app.get('/api/jobs/:job_id', (req: Request, res: Response) => {
-  const job = store.getJob(req.params.job_id);
-  if (!job) {
-    res.status(404).json({ detail: 'Job not found' });
+app.get('/api/jobs/:job_id', async (req: Request, res: Response) => {
+  const jobId = req.params.job_id;
+  const job = store.getJob(jobId);
+  if (job) {
+    res.json(job);
     return;
   }
-  res.json(job);
+
+  // If not found in local memory (e.g. separate serverless instance), check Supabase
+  if (isSupabaseConfigured()) {
+    try {
+      const sb = getSupabase();
+      if (sb) {
+        const { data } = await sb.from('scrape_jobs').select('*').eq('id', jobId).maybeSingle();
+        if (data) {
+          res.json({
+            status: data.status,
+            progress: data.progress,
+            stage: data.stage,
+            step: data.step,
+            total_steps: data.total_steps,
+            details: data.details,
+            result: data.result,
+            error: data.error,
+            started_at: data.started_at,
+          });
+          return;
+        }
+      }
+    } catch {}
+  }
+
+  res.status(404).json({ detail: 'Job not found' });
 });
 
 // ── Generic Scraper Runner Helper ─────────────────────────────────────────────
@@ -80,7 +117,7 @@ async function runScrapeJob(jobId: string, reqBody: any, source: string) {
     stage: 'Corridor & RFC 9309 Validation',
     details: `Validating corridor [${origin} ➔ ${destination}] (${corridorWeight}) against DGCA passenger basket & RFC 9309 robots.txt...`,
   });
-  await sleep(1000);
+  await sleep(300);
 
   try {
     // ── Step 2: Gateway Negotiation (32%) ────────────────────────────
@@ -92,7 +129,7 @@ async function runScrapeJob(jobId: string, reqBody: any, source: string) {
       stage: `Connecting to ${sourceName} Gateway`,
       details: `Negotiating TLS 1.3 session with ${sourceName} API gateway across ${dates.length || 1} date(s) [${dates.slice(0, 3).join(', ')}${dates.length > 3 ? '...' : ''}]...`,
     });
-    await sleep(1400);
+    await sleep(350);
 
     // ── Step 3: Multi-Carrier Schedule Harvesting (48% -> 66% -> 78%) ─
     store.updateJob(jobId, {
@@ -103,7 +140,7 @@ async function runScrapeJob(jobId: string, reqBody: any, source: string) {
       stage: 'Harvesting Morning Fleet Manifests',
       details: `Harvesting morning wave (05:45–11:00): 18 operations detected across IndiGo, Air India, Vistara...`,
     });
-    await sleep(1300);
+    await sleep(300);
 
     // Execute comprehensive scraping & schedule synthesis
     const scraper = getScraper(source);
@@ -122,7 +159,7 @@ async function runScrapeJob(jobId: string, reqBody: any, source: string) {
       stage: 'Harvesting Midday & Peak Evening Rush',
       details: `Harvesting afternoon lull & evening business return banks (11:30–20:30): Akasa, SpiceJet, Air India Express...`,
     });
-    await sleep(1400);
+    await sleep(300);
 
     store.updateJob(jobId, {
       status: 'running',
@@ -132,7 +169,7 @@ async function runScrapeJob(jobId: string, reqBody: any, source: string) {
       stage: 'Compiling Late-Night & Connecting Slots',
       details: `Compiling late-night slots and connecting itineraries: ${fares.length} total carrier operations captured...`,
     });
-    await sleep(1100);
+    await sleep(250);
 
     // ── Step 4: Statutory Fare Unbundling & Surcharges (88%) ───────────
     store.updateJob(jobId, {
@@ -143,7 +180,7 @@ async function runScrapeJob(jobId: string, reqBody: any, source: string) {
       stage: 'Unbundling Fares & Surcharges',
       details: `Unbundling Base Fare, 5% Civil Aviation GST, AERA UDF levies (₹177/₹393), and convenience fees for ${fares.length} quotes...`,
     });
-    await sleep(1200);
+    await sleep(300);
 
     // ── Step 5: DGCA Lowe Index Calibration & Persistence (100%) ──────
     store.updateJob(jobId, {
@@ -181,7 +218,7 @@ async function runCalendarJob(jobId: string, reqBody: any, source: string) {
     stage: 'Initializing Fare Calendar Fetch',
     details: `Querying ${monthsAhead}-month future travel window for [${origin} ➔ ${destination}]...`,
   });
-  await sleep(350);
+  await sleep(200);
 
   try {
     store.updateJob(jobId, {
@@ -204,7 +241,7 @@ async function runCalendarJob(jobId: string, reqBody: any, source: string) {
       stage: 'Aggregating Daily Lowest Quotes',
       details: `Compiling daily lowest carrier price points across travel horizon...`,
     });
-    await sleep(300);
+    await sleep(200);
 
     store.updateJob(jobId, {
       status: 'done',

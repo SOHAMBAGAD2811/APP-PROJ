@@ -5,6 +5,7 @@
 
 import { FlightFare, DailyFareTrend } from '../models';
 import { store } from '../store';
+import { generateFlightsForRouteDate } from './flightGenerator';
 
 export const CITIES: Record<string, string> = {
   DEL: 'DEL-Delhi-India',
@@ -62,6 +63,7 @@ export async function scrapeFareCalendar(
         method: 'POST',
         headers,
         body: JSON.stringify({ CalKey_: calKey }),
+        signal: AbortSignal.timeout(2500),
       });
 
       if (res.ok) {
@@ -127,8 +129,6 @@ export async function scrapeFareCalendar(
   store.saveCalendar('emt', trends);
   return trends;
 }
-
-import { generateFlightsForRouteDate } from './flightGenerator';
 
 export async function scrapeFlightsForDates(
   dates: string[],

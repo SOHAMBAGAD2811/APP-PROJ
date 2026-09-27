@@ -37,10 +37,13 @@ app.use(express.json());
 // ── URL Normalization for Vercel Serverless Functions ───────────────────────
 app.use((req: Request, _res: Response, next) => {
   const matchedPath = req.headers['x-matched-path'];
-  if (typeof req.url === 'string' && !req.url.startsWith('/api')) {
+  if (typeof matchedPath === 'string' && matchedPath.startsWith('/api') && matchedPath !== '/api' && matchedPath !== '/api/' && !matchedPath.includes('[')) {
+    const queryIdx = typeof req.url === 'string' ? req.url.indexOf('?') : -1;
+    const query = queryIdx !== -1 ? req.url.slice(queryIdx) : '';
+    const cleanMatched = matchedPath.split('?')[0];
+    req.url = cleanMatched + query;
+  } else if (typeof req.url === 'string' && !req.url.startsWith('/api')) {
     req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
-  } else if (typeof matchedPath === 'string' && matchedPath.startsWith('/api') && !matchedPath.includes('[') && (req.url === '/api' || req.url === '/api/')) {
-    req.url = matchedPath;
   }
   next();
 });

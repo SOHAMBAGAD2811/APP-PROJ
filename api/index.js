@@ -43881,10 +43881,13 @@ app.use((req, _res, next) => {
 app.use(import_express.default.json());
 app.use((req, _res, next) => {
   const matchedPath = req.headers["x-matched-path"];
-  if (typeof req.url === "string" && !req.url.startsWith("/api")) {
+  if (typeof matchedPath === "string" && matchedPath.startsWith("/api") && matchedPath !== "/api" && matchedPath !== "/api/" && !matchedPath.includes("[")) {
+    const queryIdx = typeof req.url === "string" ? req.url.indexOf("?") : -1;
+    const query = queryIdx !== -1 ? req.url.slice(queryIdx) : "";
+    const cleanMatched = matchedPath.split("?")[0];
+    req.url = cleanMatched + query;
+  } else if (typeof req.url === "string" && !req.url.startsWith("/api")) {
     req.url = "/api" + (req.url.startsWith("/") ? req.url : "/" + req.url);
-  } else if (typeof matchedPath === "string" && matchedPath.startsWith("/api") && !matchedPath.includes("[") && (req.url === "/api" || req.url === "/api/")) {
-    req.url = matchedPath;
   }
   next();
 });
@@ -44446,7 +44449,13 @@ var app_default = app;
 
 // server/api_entry.ts
 function handler(req, res) {
-  if (req.url && typeof req.url === "string" && !req.url.startsWith("/api")) {
+  const matchedPath = req.headers["x-matched-path"];
+  if (typeof matchedPath === "string" && matchedPath.startsWith("/api") && matchedPath !== "/api" && matchedPath !== "/api/" && !matchedPath.includes("[")) {
+    const queryIdx = typeof req.url === "string" ? req.url.indexOf("?") : -1;
+    const query = queryIdx !== -1 ? req.url.slice(queryIdx) : "";
+    const cleanMatched = matchedPath.split("?")[0];
+    req.url = cleanMatched + query;
+  } else if (typeof req.url === "string" && !req.url.startsWith("/api")) {
     req.url = "/api" + (req.url.startsWith("/") ? req.url : "/" + req.url);
   }
   return app_default(req, res);

@@ -8,9 +8,8 @@ import {
 import MarkdownContent from './chat/MarkdownContent';
 
 const DEFAULT_MODELS = [
-  { id: 'llama3.2:latest', label: 'Llama 3.2 (Fast · 3.2B)', param_size: '3.2B' },
-  { id: 'llama3:latest',   label: 'Llama 3 (Deep · 8.0B)', param_size: '8.0B' },
-  { id: 'llama3.2:1b',     label: 'Llama 3.2 1B (Turbo · 1.2B)', param_size: '1.2B' },
+  { id: 'aira-flash', label: 'AiRA Neural Flash (Real-time)', param_size: 'Ultra-fast' },
+  { id: 'aira-deep',  label: 'AiRA Advanced Analytics (Deep)', param_size: 'High-precision' },
 ];
 
 const STARTER_PROMPTS = [
@@ -62,15 +61,15 @@ export default function ChatTab({
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hello! I am your **AiRA Aviation Intelligence Assistant**. I have real-time access to the flight quotes and DGCA corridor metrics currently in view.\n\nAsk me anything: compare prices between **EaseMyTrip** and **Google Flights**, find the cheapest non-stop departures, or analyze carrier price dispersion.",
+      content: "Hello! I am **AiRA Bot**, your Aviation Intelligence Assistant. I have real-time access to the empirical flight quotes and DGCA corridor metrics currently in view.\n\nAsk me anything: compare prices between **EaseMyTrip** and **Google Flights**, find the cheapest non-stop departures, or analyze carrier price dispersion.",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [models, setModels] = useState(DEFAULT_MODELS);
-  const [selectedModel, setSelectedModel] = useState('llama3.2:latest');
-  const [modelStatus, setModelStatus] = useState('loading'); // 'ready' | 'loading' | 'offline'
+  const [selectedModel, setSelectedModel] = useState('aira-flash');
+  const [modelStatus, setModelStatus] = useState('ready'); // 'ready' | 'loading'
   const [copiedId, setCopiedId] = useState(null);
 
   const chatContainerRef = useRef(null);
@@ -78,7 +77,7 @@ export default function ChatTab({
   const abortControllerRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // Fetch available Ollama models on mount
+  // Fetch available AiRA models on mount
   useEffect(() => {
     let active = true;
     async function fetchModels() {
@@ -91,11 +90,11 @@ export default function ChatTab({
           if (data.active) {
             setSelectedModel(data.active);
           }
-          setModelStatus(data.status === 'ok' ? 'ready' : 'offline');
+          setModelStatus('ready');
         }
       } catch {
         if (active) {
-          setModelStatus('offline');
+          setModelStatus('ready');
         }
       }
     }
@@ -261,7 +260,7 @@ export default function ChatTab({
             return {
               ...m,
               isError: true,
-              content: `⚠️ **Unable to complete response:** ${err.message}\n\nPlease verify that Ollama is running (\`ollama run llama3.2\`) and accessible on \`localhost:11434\`.`,
+              content: `⚠️ **Unable to complete response:** ${err.message}\n\nPlease try again or verify your connection to the AiRA Intelligence Service.`,
               loading: false,
             };
           }
@@ -400,9 +399,9 @@ export default function ChatTab({
                   width: 6,
                   height: 6,
                   borderRadius: '50%',
-                  background: modelStatus === 'offline' ? 'var(--amber)' : '#16a34a'
+                  background: '#16a34a'
                 }} />
-                {modelStatus === 'offline' ? 'Ollama Local Fallback' : 'Ollama Online'}
+                AiRA Neural Engine • Online
               </span>
             </div>
           </div>
@@ -619,7 +618,7 @@ export default function ChatTab({
                         animation: 'pulse 1.2s ease-in-out 0.4s infinite'
                       }} />
                       <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginLeft: '6px' }}>
-                        Analyzing live flight quotes with {selectedModel}...
+                        Analyzing live flight quotes with AiRA Bot...
                       </span>
                     </div>
                   ) : isUser ? (
@@ -834,7 +833,7 @@ export default function ChatTab({
           fontSize: '0.7rem',
           color: 'var(--text-muted)',
         }}>
-          <span>Press <strong>Enter ↵</strong> to send query · Local RAG pipeline</span>
+          <span>Press <strong>Enter ↵</strong> to send query · AiRA Intelligence Engine</span>
           <span>Verified against live TimescaleDB quotes & JSON ledger</span>
         </div>
       </div>

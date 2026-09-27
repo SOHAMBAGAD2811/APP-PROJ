@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { Plane, X } from 'lucide-react';
 import ChatTab from './ChatTab';
-import AiRALogo from './AiRALogo';
 
 export default function FloatingChatWidget({
   source = 'both',
@@ -32,26 +31,26 @@ export default function FloatingChatWidget({
             gap: '10px',
             padding: '7px 15px',
             borderRadius: '999px',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f6fafc 100%)',
-            border: '1px solid rgba(22, 67, 91, 0.22)',
-            boxShadow: '0 6px 20px -3px rgba(15, 51, 71, 0.18), 0 0 0 1px rgba(22, 67, 91, 0.05)',
+            background: 'var(--bg-surface, #ffffff)',
+            border: '1px solid var(--border, #dce3e6)',
+            boxShadow: 'var(--shadow-md, 0 4px 6px -1px rgba(23, 55, 71, 0.06))',
             cursor: 'pointer',
-            transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'all var(--t-fast, 150ms cubic-bezier(0.16, 1, 0.3, 1))',
             userSelect: 'none',
             animation: 'slideInPill 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateX(-3px) scale(1.02)';
-            e.currentTarget.style.borderColor = '#16435b';
-            e.currentTarget.style.boxShadow = '0 10px 24px -4px rgba(15, 51, 71, 0.26), 0 0 0 1px #16435b';
+            e.currentTarget.style.borderColor = 'var(--accent, #16435b)';
+            e.currentTarget.style.boxShadow = 'var(--shadow-lg, 0 10px 15px -3px rgba(23, 55, 71, 0.07))';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'none';
-            e.currentTarget.style.borderColor = 'rgba(22, 67, 91, 0.22)';
-            e.currentTarget.style.boxShadow = '0 6px 20px -3px rgba(15, 51, 71, 0.18), 0 0 0 1px rgba(22, 67, 91, 0.05)';
+            e.currentTarget.style.borderColor = 'var(--border, #dce3e6)';
+            e.currentTarget.style.boxShadow = 'var(--shadow-md, 0 4px 6px -1px rgba(23, 55, 71, 0.06))';
           }}
         >
-          {/* Pulsing Emerald Beacon */}
+          {/* Pulsing Green Indicator Beacon */}
           <span
             style={{
               position: 'relative',
@@ -68,7 +67,7 @@ export default function FloatingChatWidget({
                 width: '100%',
                 height: '100%',
                 borderRadius: '50%',
-                background: '#10b981',
+                background: 'var(--green, #2e7d52)',
                 opacity: 0.75,
                 animation: 'pulseBeacon 2s cubic-bezier(0, 0, 0.2, 1) infinite',
               }}
@@ -78,8 +77,8 @@ export default function FloatingChatWidget({
                 width: '7px',
                 height: '7px',
                 borderRadius: '50%',
-                background: '#10b981',
-                boxShadow: '0 0 6px #10b981',
+                background: 'var(--green, #2e7d52)',
+                boxShadow: '0 0 6px rgba(46, 125, 82, 0.5)',
               }}
             />
           </span>
@@ -88,8 +87,8 @@ export default function FloatingChatWidget({
             <span
               style={{
                 fontSize: '0.84rem',
-                fontWeight: 800,
-                color: '#16435b',
+                fontWeight: 700,
+                color: 'var(--accent, #16435b)',
                 letterSpacing: '-0.01em',
                 display: 'flex',
                 alignItems: 'center',
@@ -97,12 +96,12 @@ export default function FloatingChatWidget({
               }}
             >
               Use AiRA Bot
-              <span style={{ color: '#c25e3d', fontSize: '0.74rem' }}>⚡</span>
+              <span style={{ color: 'var(--accent-warm, #c25e3d)', fontSize: '0.74rem' }}>⚡</span>
             </span>
             <span
               style={{
-                fontSize: '0.67rem',
-                color: '#77878f',
+                fontSize: '0.66rem',
+                color: 'var(--text-muted, #77878f)',
                 fontWeight: 600,
                 letterSpacing: '0.04em',
                 fontFamily: 'var(--font-mono, monospace)',
@@ -115,7 +114,7 @@ export default function FloatingChatWidget({
         </div>
       )}
 
-      {/* Floating Trigger Circle Button with Bespoke AiRA Emblem */}
+      {/* Floating Trigger Circle Button with Previous AiRA Logo Icon */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -124,47 +123,47 @@ export default function FloatingChatWidget({
           position: 'fixed',
           bottom: '24px',
           right: '24px',
-          width: '58px',
-          height: '58px',
+          width: '56px',
+          height: '56px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, #091e2b 0%, #113447 50%, #16435b 100%)',
-          border: '1.5px solid rgba(255, 255, 255, 0.25)',
+          background: 'var(--accent-grad, linear-gradient(135deg, #0f3347 0%, #16435b 100%))',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
           color: '#ffffff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           cursor: 'pointer',
-          boxShadow: '0 8px 24px -2px rgba(11, 35, 49, 0.42), 0 0 0 1px rgba(22, 67, 91, 0.15)',
+          boxShadow: '0 8px 24px -2px rgba(15, 51, 71, 0.38), 0 0 0 1px rgba(22, 67, 91, 0.1)',
           zIndex: 9998,
           transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
           transform: isOpen ? 'rotate(90deg)' : 'scale(1)',
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = isOpen ? 'rotate(90deg) scale(1.08)' : 'scale(1.08)';
-          e.currentTarget.style.boxShadow = '0 12px 30px -2px rgba(11, 35, 49, 0.55), 0 0 16px rgba(56, 189, 248, 0.25)';
+          e.currentTarget.style.boxShadow = '0 12px 28px -2px rgba(15, 51, 71, 0.48), 0 0 14px rgba(22, 67, 91, 0.3)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.transform = isOpen ? 'rotate(90deg)' : 'scale(1)';
-          e.currentTarget.style.boxShadow = '0 8px 24px -2px rgba(11, 35, 49, 0.42), 0 0 0 1px rgba(22, 67, 91, 0.15)';
+          e.currentTarget.style.boxShadow = '0 8px 24px -2px rgba(15, 51, 71, 0.38), 0 0 0 1px rgba(22, 67, 91, 0.1)';
         }}
       >
         {isOpen ? (
           <X size={22} strokeWidth={2.4} />
         ) : (
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <AiRALogo size={28} glow />
+            <Plane size={22} strokeWidth={2.2} />
             {/* Live Indicator Beacon Dot */}
             <span
               style={{
                 position: 'absolute',
                 top: '-3px',
                 right: '-3px',
-                width: '10px',
-                height: '10px',
+                width: '9px',
+                height: '9px',
                 borderRadius: '50%',
-                background: '#10b981',
-                border: '2px solid #091e2b',
-                boxShadow: '0 0 6px #10b981',
+                background: '#34d399',
+                border: '2px solid #0f3347',
+                boxShadow: '0 0 6px #34d399',
               }}
             />
           </div>
@@ -181,8 +180,8 @@ export default function FloatingChatWidget({
               style={{
                 position: 'fixed',
                 inset: 0,
-                background: 'rgba(9, 30, 43, 0.55)',
-                backdropFilter: 'blur(5px)',
+                background: 'rgba(15, 51, 71, 0.45)',
+                backdropFilter: 'blur(4px)',
                 zIndex: 9999,
                 animation: 'fadeOverlay 0.2s ease',
               }}
@@ -203,9 +202,9 @@ export default function FloatingChatWidget({
                     margin: '0 auto',
                     zIndex: 10000,
                     borderRadius: 'var(--r-xl, 16px)',
-                    background: '#f8fafb',
-                    boxShadow: '0 30px 80px -15px rgba(9, 30, 43, 0.55)',
-                    border: '1px solid rgba(22, 67, 91, 0.22)',
+                    background: 'var(--bg-surface, #ffffff)',
+                    boxShadow: '0 25px 60px -12px rgba(15, 51, 71, 0.4)',
+                    border: '1px solid var(--border, #dce3e6)',
                     overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',
@@ -216,13 +215,13 @@ export default function FloatingChatWidget({
                     right: '24px',
                     width: '460px',
                     maxWidth: 'calc(100vw - 32px)',
-                    height: '640px',
+                    height: '630px',
                     maxHeight: 'calc(100vh - 116px)',
                     zIndex: 9999,
-                    borderRadius: 'var(--r-lg, 14px)',
-                    background: '#f8fafb',
-                    boxShadow: '0 24px 64px -12px rgba(9, 30, 43, 0.42), 0 0 0 1px rgba(22, 67, 91, 0.12)',
-                    border: '1px solid rgba(22, 67, 91, 0.22)',
+                    borderRadius: 'var(--r-lg, 12px)',
+                    background: 'var(--bg-surface, #ffffff)',
+                    boxShadow: '0 20px 48px -10px rgba(15, 51, 71, 0.25), 0 0 0 1px rgba(22, 67, 91, 0.08)',
+                    border: '1px solid var(--border, #dce3e6)',
                     overflow: 'hidden',
                     display: 'flex',
                     flexDirection: 'column',

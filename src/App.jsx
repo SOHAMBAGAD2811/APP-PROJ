@@ -13,7 +13,6 @@ import { useFlights } from './hooks/useFlights';
 import APIxTab        from './components/APIxTab';
 import ScrapeProgressBar from './components/ScrapeProgressBar';
 import FloatingChatWidget from './components/FloatingChatWidget';
-import AiRALogo from './components/AiRALogo';
 
 export default function App() {
   const [source, setSource]       = useState('emt');
@@ -110,12 +109,12 @@ export default function App() {
     <>
       <header className="app-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <a href="/" className="app-logo" style={{ textDecoration: 'none' }}>
-            <div className="app-logo-icon" style={{ background: 'transparent', boxShadow: 'none', border: 'none', width: 'auto', height: 'auto' }}>
-              <AiRALogo size={32} glow />
+          <a href="/" className="app-logo">
+            <div className="app-logo-icon">
+              <Plane size={18} strokeWidth={2.2} />
             </div>
             <div>
-              <div className="app-logo-text" style={{ letterSpacing: '-0.02em', fontWeight: 800 }}>AiRA</div>
+              <div className="app-logo-text">AiRA</div>
               <div className="app-logo-sub">INDIA FARE INTELLIGENCE</div>
             </div>
           </a>

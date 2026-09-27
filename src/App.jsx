@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plane, Scale, List, LayoutList, AreaChart, CalendarDays, MessageSquare, Zap, Clock3, ArrowRight, RefreshCw, X } from 'lucide-react';
+import { Plane, Scale, List, LayoutList, AreaChart, CalendarDays, Zap, Clock3, ArrowRight, RefreshCw, X } from 'lucide-react';
 import SearchPanel    from './components/SearchPanel';
 import StatsBar       from './components/StatsBar';
 import FlightsTable   from './components/FlightsTable';
@@ -10,9 +10,9 @@ import CompareTable   from './components/CompareTable';
 import SourceSelector from './components/SourceSelector';
 import SkeletonLoader from './components/SkeletonLoader';
 import { useFlights } from './hooks/useFlights';
-import ChatTab        from './components/ChatTab';
 import APIxTab        from './components/APIxTab';
 import ScrapeProgressBar from './components/ScrapeProgressBar';
+import FloatingChatWidget from './components/FloatingChatWidget';
 
 export default function App() {
   const [source, setSource]       = useState('emt');
@@ -51,7 +51,6 @@ export default function App() {
     { id: 'grouped',  label: <><LayoutList size={16} /> Grouped View</> },
     { id: 'charts',   label: <><AreaChart size={16} /> Analytics</> },
     { id: 'calendar', label: <><CalendarDays size={16} /> Fare Calendar</> },
-    { id: 'chat',     label: <><MessageSquare size={16} /> AI Chat</> },
   ];
 
   function handleSourceChange(s) {
@@ -310,7 +309,6 @@ export default function App() {
               {activeTab === 'grouped'  && <GroupedView fares={flights} />}
               {activeTab === 'charts'   && <ChartPanel fares={flights} />}
               {activeTab === 'calendar' && <CalendarChart data={calendar} />}
-              {activeTab === 'chat'     && <ChatTab source={source} fares={flights} emtFlights={emtFlights} ctFlights={ctFlights} />}
             </div>
           </div>
         )}
@@ -322,6 +320,14 @@ export default function App() {
           <APIxTab />
         </div>
       </main>
+
+      {/* Floating AI Chat Assistant (Small widget or Fullscreen) */}
+      <FloatingChatWidget
+        source={source}
+        fares={flights}
+        emtFlights={emtFlights}
+        ctFlights={ctFlights}
+      />
     </>
   );
 }

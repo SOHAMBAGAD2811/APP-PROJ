@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import {
   Send, Bot, User, AlertCircle, Sparkles, RotateCcw, Copy,
   Check, StopCircle, ArrowUpRight, Scale, Clock, Zap,
-  TrendingDown, ChevronDown, CheckCircle2, SlidersHorizontal
+  TrendingDown, ChevronDown, CheckCircle2, SlidersHorizontal,
+  Maximize2, Minimize2, X
 } from 'lucide-react';
 import MarkdownContent from './chat/MarkdownContent';
 
@@ -47,7 +48,16 @@ const STARTER_PROMPTS = [
   },
 ];
 
-export default function ChatTab({ source = 'both', fares = [], emtFlights = [], ctFlights = [] }) {
+export default function ChatTab({
+  source = 'both',
+  fares = [],
+  emtFlights = [],
+  ctFlights = [],
+  isWidget = false,
+  isFullscreen = false,
+  onToggleFullscreen,
+  onClose,
+}) {
   const [messages, setMessages] = useState([
     {
       id: 'welcome',
@@ -328,11 +338,11 @@ export default function ChatTab({ source = 'both', fares = [], emtFlights = [], 
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      height: '680px',
+      height: isWidget ? '100%' : '680px',
       background: 'var(--bg-surface)',
-      borderRadius: 'var(--radius)',
-      border: '1px solid var(--border)',
-      boxShadow: 'var(--shadow-sm)',
+      borderRadius: isWidget ? 0 : 'var(--radius)',
+      border: isWidget ? 'none' : '1px solid var(--border)',
+      boxShadow: isWidget ? 'none' : 'var(--shadow-sm)',
       overflow: 'hidden',
     }}>
       {/* ── Header ───────────────────────────────────────────── */}
@@ -454,6 +464,53 @@ export default function ChatTab({ source = 'both', fares = [], emtFlights = [], 
             <RotateCcw size={13} />
             <span>Reset</span>
           </button>
+
+          {isWidget && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '2px', borderLeft: '1px solid var(--border)', paddingLeft: '8px' }}>
+              {onToggleFullscreen && (
+                <button
+                  type="button"
+                  title={isFullscreen ? 'Restore small window' : 'Full screen'}
+                  onClick={onToggleFullscreen}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--border)',
+                    borderRadius: '6px',
+                    padding: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--text-secondary)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {isFullscreen ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+                </button>
+              )}
+              {onClose && (
+                <button
+                  type="button"
+                  title="Close chat"
+                  onClick={onClose}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--border)',
+                    borderRadius: '6px',
+                    padding: '6px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--text-secondary)',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

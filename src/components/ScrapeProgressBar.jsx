@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Activity, CheckCircle2, Clock, Cpu, Plane, Server } from 'lucide-react';
+import { CheckCircle2, Clock, Cpu, Plane, Sparkles } from 'lucide-react';
 
 const PIPELINE_STEPS = [
   { id: 1, label: 'Corridor Check' },
@@ -42,30 +42,18 @@ export default function ScrapeProgressBar({
     <div
       className="anim-fade-in"
       style={{
-        background: 'linear-gradient(145deg, #0b2230 0%, #16435b 100%)',
-        borderRadius: '12px',
-        padding: '18px 22px',
-        color: '#ffffff',
-        border: '1px solid rgba(255, 255, 255, 0.15)',
-        boxShadow: '0 12px 28px -6px rgba(11, 34, 48, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08)',
+        background: '#ffffff',
+        borderRadius: 'var(--r-md, 8px)',
+        padding: '16px 20px',
+        color: 'var(--text-primary, #173747)',
+        border: '1px solid var(--border, #dce3e6)',
+        boxShadow: 'var(--shadow-sm, 0 1px 3px 0 rgba(23, 55, 71, 0.06))',
         marginBottom: '20px',
         position: 'relative',
         overflow: 'hidden',
+        transition: 'border-color var(--t-fast), box-shadow var(--t-fast)',
       }}
     >
-      {/* Background ambient glow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-40px',
-          right: '-40px',
-          width: '160px',
-          height: '160px',
-          background: 'radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }}
-      />
-
       {/* Top Status Bar: Title, Step, Timer & Percentage */}
       <div
         style={{
@@ -73,46 +61,50 @@ export default function ScrapeProgressBar({
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '10px',
+          gap: '12px',
           marginBottom: '14px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div
             style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: '8px',
-              background: 'rgba(255, 255, 255, 0.12)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#38bdf8',
+              width: '38px',
+              height: '38px',
+              borderRadius: 'var(--r-sm, 5px)',
+              background: '#edf3f4',
+              border: '1px solid #dce5e8',
+              display: 'grid',
+              placeItems: 'center',
+              color: 'var(--accent, #16435b)',
+              flexShrink: 0,
             }}
           >
-            <Cpu size={16} className="anim-pulse" />
+            <Cpu size={18} strokeWidth={2.2} className="anim-pulse" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
                 style={{
-                  fontSize: '0.72rem',
+                  fontSize: '0.68rem',
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   fontWeight: 700,
-                  color: '#93c5fd',
+                  color: 'var(--text-muted, #77878f)',
+                  fontFamily: 'var(--font-mono, monospace)',
                 }}
               >
-                BACKEND SCRAPING ENGINE
+                ON-DEMAND SCRAPE PIPELINE
               </span>
               <span
                 style={{
-                  fontSize: '0.7rem',
+                  fontSize: '0.68rem',
                   padding: '2px 7px',
-                  borderRadius: '10px',
-                  background: 'rgba(56, 189, 248, 0.18)',
-                  color: '#bae6fd',
-                  fontWeight: 600,
+                  borderRadius: '4px',
+                  background: '#eef5f8',
+                  color: 'var(--accent, #16435b)',
+                  fontWeight: 700,
+                  border: '1px solid #bfdbfe',
+                  letterSpacing: '0.04em',
                 }}
               >
                 {source ? source.toUpperCase() : 'MULTI-SOURCE'}
@@ -120,10 +112,11 @@ export default function ScrapeProgressBar({
             </div>
             <div
               style={{
-                fontSize: '0.96rem',
-                fontWeight: 600,
-                color: '#ffffff',
+                fontSize: '1.02rem',
+                fontWeight: 700,
+                color: 'var(--text-primary, #173747)',
                 marginTop: '1px',
+                fontFamily: 'var(--font-sans, inherit)',
               }}
             >
               {stage || 'Processing Flight Scrape Pipeline...'}
@@ -131,31 +124,35 @@ export default function ScrapeProgressBar({
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '5px',
+              gap: '4px',
               fontSize: '0.78rem',
-              color: '#94a3b8',
+              color: 'var(--text-muted, #77878f)',
               fontFamily: 'var(--font-mono, monospace)',
+              background: 'var(--bg-subtle, #f1f5f7)',
+              padding: '3px 8px',
+              borderRadius: '4px',
+              border: '1px solid var(--border-subtle, #edf2f4)',
             }}
           >
-            <Clock size={13} />
+            <Clock size={12} />
             <span>{String(Math.floor(elapsed / 60)).padStart(2, '0')}:{String(elapsed % 60).padStart(2, '0')}s</span>
           </div>
 
           <div
             style={{
-              background: 'rgba(255, 255, 255, 0.14)',
-              padding: '3px 10px',
+              background: '#eef5f8',
+              padding: '3px 9px',
               borderRadius: '6px',
-              fontSize: '0.8rem',
+              fontSize: '0.82rem',
               fontWeight: 700,
               fontFamily: 'var(--font-mono, monospace)',
-              color: '#38bdf8',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
+              color: 'var(--accent, #16435b)',
+              border: '1px solid #bfdbfe',
             }}
           >
             {Math.round(displayProgress)}%
@@ -167,12 +164,12 @@ export default function ScrapeProgressBar({
       <div
         style={{
           width: '100%',
-          height: '10px',
-          background: 'rgba(15, 23, 42, 0.65)',
+          height: '8px',
+          background: '#edf2f4',
           borderRadius: '999px',
           position: 'relative',
           overflow: 'hidden',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
+          border: '1px solid #dce3e6',
           marginBottom: '14px',
         }}
       >
@@ -180,14 +177,13 @@ export default function ScrapeProgressBar({
           style={{
             height: '100%',
             width: `${displayProgress}%`,
-            background: 'linear-gradient(90deg, #0284c7 0%, #38bdf8 50%, #34d399 100%)',
+            background: 'linear-gradient(90deg, #16435b 0%, #1e5675 65%, #c25e3d 100%)',
             borderRadius: '999px',
-            transition: 'width 0.45s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
-            boxShadow: '0 0 14px rgba(56, 189, 248, 0.6)',
           }}
         >
-          {/* Shimmer overlay animation */}
+          {/* Shimmer sweep animation */}
           <div
             style={{
               position: 'absolute',
@@ -195,14 +191,14 @@ export default function ScrapeProgressBar({
               left: 0,
               right: 0,
               bottom: 0,
-              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
-              animation: 'shimmerSlide 1.8s infinite',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent)',
+              animation: 'slideGlow 1.6s infinite',
             }}
           />
         </div>
       </div>
 
-      {/* Step Pills Stepper */}
+      {/* Step Pills Stepper matching .corridor-chip design */}
       <div
         style={{
           display: 'grid',
@@ -223,43 +219,48 @@ export default function ScrapeProgressBar({
                 alignItems: 'center',
                 gap: '5px',
                 padding: '5px 8px',
-                borderRadius: '6px',
+                borderRadius: 'var(--r-sm, 5px)',
                 background: isCurrent
-                  ? 'rgba(56, 189, 248, 0.2)'
+                  ? '#eef5f8'
                   : isDone
-                  ? 'rgba(52, 211, 153, 0.15)'
-                  : 'rgba(255, 255, 255, 0.05)',
+                  ? '#edf4ef'
+                  : 'var(--bg-subtle, #f8fafb)',
                 border: isCurrent
-                  ? '1px solid rgba(56, 189, 248, 0.45)'
+                  ? '1px solid #16435b'
                   : isDone
-                  ? '1px solid rgba(52, 211, 153, 0.3)'
-                  : '1px solid rgba(255, 255, 255, 0.05)',
+                  ? '1px solid #c8decf'
+                  : '1px solid var(--border-subtle, #edf2f4)',
                 fontSize: '0.72rem',
                 fontWeight: isCurrent ? 700 : 500,
-                color: isCurrent ? '#bae6fd' : isDone ? '#a7f3d0' : '#64748b',
-                transition: 'all 0.25s ease',
+                color: isCurrent
+                  ? '#16435b'
+                  : isDone
+                  ? '#235d3d'
+                  : 'var(--text-muted, #9aa7ad)',
+                boxShadow: isCurrent ? '0 0 0 1px rgba(22, 67, 91, 0.12)' : 'none',
+                transition: 'all 0.2s ease',
               }}
             >
               {isDone ? (
-                <CheckCircle2 size={12} color="#34d399" />
+                <CheckCircle2 size={12} color="#2e7d52" />
               ) : isCurrent ? (
-                <span
-                  style={{
-                    width: '7px',
-                    height: '7px',
-                    borderRadius: '50%',
-                    background: '#38bdf8',
-                    display: 'inline-block',
-                    boxShadow: '0 0 6px #38bdf8',
-                  }}
-                />
-              ) : (
                 <span
                   style={{
                     width: '6px',
                     height: '6px',
                     borderRadius: '50%',
-                    background: 'rgba(255, 255, 255, 0.2)',
+                    background: '#16435b',
+                    display: 'inline-block',
+                    boxShadow: '0 0 4px rgba(22, 67, 91, 0.5)',
+                  }}
+                />
+              ) : (
+                <span
+                  style={{
+                    width: '5px',
+                    height: '5px',
+                    borderRadius: '50%',
+                    background: '#cbd5e1',
                     display: 'inline-block',
                   }}
                 />
@@ -276,19 +277,19 @@ export default function ScrapeProgressBar({
       {details && (
         <div
           style={{
-            background: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: '6px',
+            background: 'var(--bg-base, #f8fafb)',
+            borderRadius: 'var(--r-sm, 5px)',
             padding: '7px 12px',
             fontSize: '0.76rem',
             fontFamily: 'var(--font-mono, monospace)',
-            color: '#cbd5e1',
+            color: 'var(--text-secondary, #4d606a)',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            border: '1px solid rgba(255, 255, 255, 0.06)',
+            border: '1px solid #e4eaed',
           }}
         >
-          <span style={{ color: '#38bdf8', fontWeight: 700 }}>❯</span>
+          <span style={{ color: 'var(--accent-warm, #c25e3d)', fontWeight: 700 }}>❯</span>
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {details}
           </span>
@@ -297,7 +298,7 @@ export default function ScrapeProgressBar({
 
       {/* CSS Animation Keyframes */}
       <style>{`
-        @keyframes shimmerSlide {
+        @keyframes slideGlow {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(200%); }
         }

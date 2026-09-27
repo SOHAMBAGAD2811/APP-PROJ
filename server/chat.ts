@@ -14,9 +14,16 @@ export interface ChatMessage {
 }
 
 export interface ChatRequest {
-  messages: ChatMessage[];
+  messages?: ChatMessage[];
+  message?: string;
   source?: string;
   model?: string;
+}
+
+function normalizeMessages(req: any): ChatMessage[] {
+  if (Array.isArray(req.messages)) return req.messages;
+  if (req.message) return [{ role: 'user', content: String(req.message) }];
+  return [];
 }
 
 export function buildChatContext(req: ChatRequest): {
@@ -25,7 +32,8 @@ export function buildChatContext(req: ChatRequest): {
   ragHits: number;
 } {
   const normSource = req.source && ['emt', 'ct', 'google_flights', 'both'].includes(req.source) ? req.source : 'both';
-  const userQuestion = [...req.messages].reverse().find((m) => m.role === 'user')?.content || '';
+  const msgs = normalizeMessages(req);
+  const userQuestion = [...msgs].reverse().find((m) => m.role === 'user')?.content || '';
 
   const allFares = store.getFares(normSource);
 
@@ -86,6 +94,7 @@ export async function handleChat(req: ChatRequest): Promise<any> {
   const modelName = req.model || 'llama3.2';
 
   // Try local Ollama if reachable
+  const msgs = normalizeMessages(req);
   try {
     const res = await fetch(`${ollamaUrl}/api/chat`, {
       method: 'POST',
@@ -94,7 +103,7 @@ export async function handleChat(req: ChatRequest): Promise<any> {
         model: modelName,
         messages: [
           { role: 'system', content: systemPrompt },
-          ...req.messages.map((m) => ({ role: m.role, content: m.content })),
+          ...msgs.map((m) => ({ role: m.role, content: m.content })),
         ],
         stream: false,
       }),
@@ -116,6 +125,7 @@ export async function handleChatStream(req: ChatRequest, res: Response): Promise
   const { systemPrompt, relevantFlights, ragHits } = buildChatContext(req);
   const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
   const modelName = req.model || 'llama3.2';
+  const msgs = normalizeMessages(req);
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -132,7 +142,7 @@ export async function handleChatStream(req: ChatRequest, res: Response): Promise
         model: modelName,
         messages: [
           { role: 'system', content: systemPrompt },
-          ...req.messages.map((m) => ({ role: m.role, content: m.content })),
+          ...msgs.map((m) => ({ role: m.role, content: m.content })),
         ],
         stream: true,
       }),
@@ -185,7 +195,8 @@ export async function handleChatStream(req: ChatRequest, res: Response): Promise
 }
 
 function generateSmartFallbackReply(req: ChatRequest, flights: any[]): string {
-  const lastMsg = [...req.messages].reverse().find((m) => m.role === 'user')?.content || '';
+  const msgs = normalizeMessages(req);
+  const lastMsg = [...msgs].reverse().find((m) => m.role === 'user')?.content || '';
   const q = lastMsg.toLowerCase();
 
   const cheapest = flights[0];

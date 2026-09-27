@@ -26,6 +26,10 @@ app.use(express.json());
 
 // ── Shared endpoints ─────────────────────────────────────────────────────────
 
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), service: 'aira-prototype' });
+});
+
 app.get('/api/airports', (req: Request, res: Response) => {
   res.json(CITIES);
 });

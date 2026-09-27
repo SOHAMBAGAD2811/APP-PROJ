@@ -14,6 +14,11 @@ export function useFlights(source = 'emt') {
   const [ctFlights, setCtFlights]   = useState([]);
   const [calendar, setCalendar]     = useState([]);
   const [loading, setLoading]       = useState(false);
+  const [progress, setProgress]     = useState(0);
+  const [stage, setStage]           = useState('');
+  const [step, setStep]             = useState(0);
+  const [totalSteps, setTotalSteps] = useState(5);
+  const [details, setDetails]       = useState('');
   const [statusMsg, setStatusMsg]   = useState('');
   const [error, setError]           = useState(null);
 
@@ -61,11 +66,21 @@ export function useFlights(source = 'emt') {
       const res = await fetch(`${API_BASE}/api/jobs/${jobId}`);
       if (!res.ok) throw new Error(`Failed to poll ${label} status`);
       const data = await res.json();
-      if (data.status === 'done')  return data.result;
+
+      if (data.progress != null) setProgress(data.progress);
+      if (data.stage) setStage(data.stage);
+      if (data.step != null) setStep(data.step);
+      if (data.total_steps != null) setTotalSteps(data.total_steps);
+      if (data.details) setDetails(data.details);
+
+      if (data.status === 'done') {
+        setProgress(100);
+        return data.result;
+      }
       if (data.status === 'error') throw new Error(data.error || `${label} failed`);
       elapsed = Math.round((Date.now() - (deadline - JOB_TIMEOUT_MS)) / 1000);
-      setStatusMsg(`⏳ Scraping ${label}… ${elapsed}s elapsed`);
-      await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
+      setStatusMsg(data.stage ? `⏳ ${data.stage} (${elapsed}s)` : `⏳ Scraping ${label}… ${elapsed}s elapsed`);
+      await new Promise(r => setTimeout(r, 600));
     }
     throw new Error(`${label} timed out after ${JOB_TIMEOUT_MS / 1000}s`);
   }
@@ -112,12 +127,21 @@ export function useFlights(source = 'emt') {
     setEmtFlights([]);
     setCtFlights([]);
     setCalendar([]);
+    setProgress(0);
+    setStage('');
+    setStep(0);
+    setDetails('');
     setStatusMsg('');
     setError(null);
   }
 
   async function searchFlights(params) {
     setLoading(true);
+    setProgress(10);
+    setStage('Initializing Scrape Pipeline');
+    setStep(1);
+    setTotalSteps(5);
+    setDetails(`Preparing search for ${params.origin || 'DEL'} ➔ ${params.destination || 'BOM'}...`);
     setError(null);
     setStatusMsg('🚀 Starting scrape…');
 
@@ -145,6 +169,8 @@ export function useFlights(source = 'emt') {
           allCal = [...allCal, ...ctResult.value.newCalendar];
 
         const allFlights = [...newEmt, ...newCt];
+        setProgress(100);
+        setStage('Scrape Pipeline Complete');
         if (allFlights.length > 0) {
           setFlights(allFlights);
           setStatusMsg(`✅ Found ${newEmt.length} EMT + ${newCt.length} Cleartrip flights!`);
@@ -159,6 +185,8 @@ export function useFlights(source = 'emt') {
         setCtFlights([]);
         const { newFlights, newCalendar } = await _startScrapeForSource(source, params);
 
+        setProgress(100);
+        setStage('Scrape Pipeline Complete');
         if (Array.isArray(newFlights) && newFlights.length > 0) {
           setFlights(newFlights);
           setStatusMsg(`✅ Found ${newFlights.length} flight(s)!`);
@@ -174,9 +202,26 @@ export function useFlights(source = 'emt') {
       setStatusMsg('');
     } finally {
       setLoading(false);
-      setTimeout(() => setStatusMsg(prev => prev.startsWith('✅') ? '' : prev), 4000);
+      setTimeout(() => {
+        setStatusMsg(prev => prev.startsWith('✅') ? '' : prev);
+      }, 5000);
     }
   }
 
-  return { flights, emtFlights, ctFlights, calendar, loading, statusMsg, error, searchFlights, clearData };
+  return {
+    flights,
+    emtFlights,
+    ctFlights,
+    calendar,
+    loading,
+    progress,
+    stage,
+    step,
+    totalSteps,
+    details,
+    statusMsg,
+    error,
+    searchFlights,
+    clearData,
+  };
 }

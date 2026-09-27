@@ -17,6 +17,11 @@ const __dirname = path.dirname(__filename);
 
 export interface JobRecord {
   status: 'queued' | 'running' | 'done' | 'error';
+  progress: number;
+  stage: string;
+  step: number;
+  total_steps: number;
+  details: string;
   result?: any;
   error?: string | null;
   started_at: string;
@@ -148,6 +153,11 @@ class Store {
     const jobId = 'job_' + Math.random().toString(36).substring(2, 11) + '_' + Date.now();
     const job: JobRecord = {
       status: 'queued',
+      progress: 0,
+      stage: 'Initializing Scraper Pipeline',
+      step: 0,
+      total_steps: 5,
+      details: 'Queuing request and preparing gateway connection...',
       result: null,
       error: null,
       started_at: new Date().toISOString(),

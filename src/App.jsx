@@ -12,17 +12,23 @@ import SkeletonLoader from './components/SkeletonLoader';
 import { useFlights } from './hooks/useFlights';
 import ChatTab        from './components/ChatTab';
 import APIxTab        from './components/APIxTab';
+import ScrapeProgressBar from './components/ScrapeProgressBar';
 
 export default function App() {
   const [source, setSource]       = useState('emt');
   const [activeTab, setActiveTab] = useState('table');
   const [sweepState, setSweepState] = useState(null); // null | 'running' | 'done' | 'error'
+  const [sweepProgress, setSweepProgress] = useState(0);
+  const [sweepStage, setSweepStage] = useState('');
+  const [sweepStep, setSweepStep] = useState(0);
+  const [sweepDetails, setSweepDetails] = useState('');
   const [manualOpen, setManualOpen] = useState(false);
   const [sweepInfo, setSweepInfo] = useState(null);
 
   const {
     flights, emtFlights, ctFlights,
-    calendar, loading, statusMsg, error, searchFlights, clearData
+    calendar, loading, progress, stage, step, totalSteps, details,
+    statusMsg, error, searchFlights, clearData
   } = useFlights(source);
 
   useEffect(() => {
@@ -56,21 +62,47 @@ export default function App() {
   async function triggerSweep() {
     if (sweepState === 'running') return;
     setSweepState('running');
+    setSweepProgress(10);
+    setSweepStage('Basket Sweep: Initializing');
+    setSweepStep(1);
+    setSweepDetails('Initializing sweep across all 6 core domestic trunk corridors...');
+
     try {
       const res = await fetch('/api/admin/trigger-sweep', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
       if (!res.ok) throw new Error(await res.text());
       const { job_id } = await res.json();
-      // Poll job until done
+
       const poll = async () => {
         const j = await fetch(`/api/jobs/${job_id}`).then(r => r.json());
-        if (j.status === 'done') { setSweepState('done'); setTimeout(() => setSweepState(null), 6000); }
-        else if (j.status === 'error') { setSweepState('error'); setTimeout(() => setSweepState(null), 8000); }
-        else setTimeout(poll, 4000);
+        if (j.progress != null) setSweepProgress(j.progress);
+        if (j.stage) setSweepStage(j.stage);
+        if (j.step != null) setSweepStep(j.step);
+        if (j.details) setSweepDetails(j.details);
+
+        if (j.status === 'done') {
+          setSweepProgress(100);
+          setSweepState('done');
+          setTimeout(() => {
+            setSweepState(null);
+            setSweepProgress(0);
+          }, 5000);
+        } else if (j.status === 'error') {
+          setSweepState('error');
+          setTimeout(() => {
+            setSweepState(null);
+            setSweepProgress(0);
+          }, 8000);
+        } else {
+          setTimeout(poll, 600);
+        }
       };
-      setTimeout(poll, 4000);
+      setTimeout(poll, 600);
     } catch {
       setSweepState('error');
-      setTimeout(() => setSweepState(null), 8000);
+      setTimeout(() => {
+        setSweepState(null);
+        setSweepProgress(0);
+      }, 8000);
     }
   }
 
@@ -195,7 +227,33 @@ export default function App() {
           </section>
         )}
 
-        {statusMsg && (
+        {/* Live Backend Scraping Progress Bar */}
+        {(loading || (progress > 0 && progress < 100)) && (
+          <ScrapeProgressBar
+            loading={loading}
+            progress={progress}
+            stage={stage}
+            step={step}
+            totalSteps={totalSteps}
+            details={details}
+            source={source}
+          />
+        )}
+
+        {/* Autonomous DGCA Basket Sweep Progress Bar */}
+        {(sweepState === 'running' || (sweepProgress > 0 && sweepProgress < 100)) && (
+          <ScrapeProgressBar
+            loading={sweepState === 'running'}
+            progress={sweepProgress}
+            stage={sweepStage}
+            step={sweepStep}
+            totalSteps={6}
+            details={sweepDetails}
+            source="DGCA SWEEP"
+          />
+        )}
+
+        {statusMsg && !loading && sweepState !== 'running' && (
           <div className="glass anim-fade-in" style={{
             padding: '12px 16px',
             color: 'var(--accent-2)',
@@ -206,16 +264,8 @@ export default function App() {
             gap: '10px',
             fontSize: '0.88rem',
             fontWeight: 500,
+            marginBottom: '16px',
           }}>
-            {loading && (
-              <div style={{
-                width: 16, height: 16, borderRadius: '50%',
-                border: '2px solid rgba(37,99,235,0.25)',
-                borderTopColor: 'var(--accent-1)',
-                animation: 'spin 0.7s linear infinite',
-                flexShrink: 0,
-              }} />
-            )}
             {statusMsg}
           </div>
         )}

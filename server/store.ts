@@ -7,7 +7,10 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pg from 'pg';
 import { DGCA_CORRIDORS, normalizeCorridor, FlightFare, DailyFareTrend } from './models';
+
+const { Pool } = pg;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,9 +28,30 @@ class Store {
   private faresCache: Record<string, FlightFare[]> = {};
   private calendarCache: Record<string, DailyFareTrend[]> = {};
   private initialized = false;
+  private dbPool: pg.Pool | null = null;
+  private dbAvailable = false;
 
   constructor() {
     this.loadSeedData();
+    this.initDatabase();
+  }
+
+  private async initDatabase(): Promise<void> {
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) return;
+
+    try {
+      this.dbPool = new Pool({
+        connectionString: dbUrl,
+        ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+      });
+      await this.dbPool.query('SELECT 1');
+      this.dbAvailable = true;
+      console.log('✅ PostgreSQL connected successfully to', dbUrl.split('@')[1] || 'database');
+    } catch (err) {
+      this.dbAvailable = false;
+      console.warn('⚠️  PostgreSQL connection failed, using embedded time-series engine:', (err as any)?.message || err);
+    }
   }
 
   private resolveFilePath(filename: string): string | null {

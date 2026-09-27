@@ -155,6 +155,18 @@ export async function scrapeFlightsForDates(
     { name: 'SpiceJet', code: 'SG', flightNums: ['8124', '302'] },
   ];
 
+  // Check live calendar price for accurate pricing anchor
+  let liveAnchorPrice: number | null = null;
+  try {
+    const liveTrends = await scrapeFareCalendar(o, d, 1);
+    for (const t of liveTrends) {
+      if (dates.includes(t.travel_date) && t.lowest_fare > 0) {
+        liveAnchorPrice = t.lowest_fare;
+        break;
+      }
+    }
+  } catch {}
+
   for (const tDate of dates) {
     const travelDt = new Date(tDate);
     const advDays = Math.max(0, Math.floor((travelDt.getTime() - Date.now()) / 86400000));
@@ -169,9 +181,10 @@ export async function scrapeFlightsForDates(
         const durMin = 125 + (flightIndex % 3) * 15;
         const arrDt = new Date(depDt.getTime() + durMin * 60000);
 
-        const basePrice = 4800 + (advDays < 3 ? 2400 : 0) + (flightIndex % 5) * 350;
+        const targetTotal = liveAnchorPrice ? Math.round(liveAnchorPrice + (flightIndex % 4) * 350) : (4800 + (advDays < 3 ? 2400 : 0) + (flightIndex % 5) * 350);
         const udf = durMin > 300 ? 393.0 : 177.0;
         const convFee = 249.0;
+        const basePrice = Math.round(Math.max(1000, (targetTotal - udf - convFee) / 1.05));
         const taxes = Math.round(basePrice * 0.05);
         const total = Math.round(basePrice + taxes + udf + convFee);
 

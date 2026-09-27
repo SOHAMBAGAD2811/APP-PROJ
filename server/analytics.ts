@@ -9,8 +9,7 @@ import { fileURLToPath } from 'url';
 import { parse } from 'csv-parse/sync';
 import { DGCA_CORRIDORS } from './models';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = typeof __dirname !== 'undefined' ? __dirname : (typeof import.meta?.url === 'string' ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd());
 
 // Helper statistical calculations
 export function mean(arr: number[]): number {
@@ -168,7 +167,8 @@ export function compareAgainstDgcaBenchmark(rows: any[], monthsBack = 6): any {
   const candidatePaths = [
     path.join(process.cwd(), 'data', 'dgca_historical_monthly.csv'),
     path.join(process.cwd(), 'dgca_historical_monthly.csv'),
-    path.join(__dirname, '..', 'data', 'dgca_historical_monthly.csv'),
+    path.join(currentDir, '..', 'data', 'dgca_historical_monthly.csv'),
+    path.join(currentDir, 'data', 'dgca_historical_monthly.csv'),
   ];
 
   let csvContent = '';

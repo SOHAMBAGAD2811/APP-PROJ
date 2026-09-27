@@ -17,8 +17,7 @@ import {
   upsertJobToSupabase,
 } from './supabase';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const currentDir = typeof __dirname !== 'undefined' ? __dirname : (typeof import.meta?.url === 'string' ? path.dirname(fileURLToPath(import.meta.url)) : process.cwd());
 
 export interface JobRecord {
   status: 'queued' | 'running' | 'done' | 'error';
@@ -54,8 +53,10 @@ class Store {
     const candidates = [
       path.join(process.cwd(), filename),
       path.join(process.cwd(), 'data', filename),
-      path.join(__dirname, '..', filename),
-      path.join(__dirname, '..', 'data', filename),
+      path.join(currentDir, '..', filename),
+      path.join(currentDir, '..', 'data', filename),
+      path.join(currentDir, filename),
+      path.join(currentDir, 'data', filename),
     ];
     for (const c of candidates) {
       if (fs.existsSync(c)) return c;

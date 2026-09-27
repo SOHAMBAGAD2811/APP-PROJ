@@ -23,15 +23,24 @@ import { testSupabaseConnection, isSupabaseConfigured, getSupabase } from './sup
 const app = express();
 
 app.use(cors({ origin: '*', methods: '*' }));
+
+// Handle pre-parsed JSON bodies from Vercel Serverless runtime
+app.use((req: Request, _res: Response, next) => {
+  if (req.body && typeof req.body === 'object') {
+    (req as any)._body = true;
+  }
+  next();
+});
+
 app.use(express.json());
 
 // ── URL Normalization for Vercel Serverless Functions ───────────────────────
 app.use((req: Request, _res: Response, next) => {
   const matchedPath = req.headers['x-matched-path'];
-  if (typeof matchedPath === 'string' && matchedPath.startsWith('/api')) {
-    req.url = matchedPath;
-  } else if (typeof req.url === 'string' && !req.url.startsWith('/api')) {
+  if (typeof req.url === 'string' && !req.url.startsWith('/api')) {
     req.url = '/api' + (req.url.startsWith('/') ? req.url : '/' + req.url);
+  } else if (typeof matchedPath === 'string' && matchedPath.startsWith('/api') && !matchedPath.includes('[') && (req.url === '/api' || req.url === '/api/')) {
+    req.url = matchedPath;
   }
   next();
 });

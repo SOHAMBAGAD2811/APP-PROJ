@@ -90,13 +90,9 @@ export default function FloatingChatWidget({
                 fontWeight: 700,
                 color: 'var(--accent, #16435b)',
                 letterSpacing: '-0.01em',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
               }}
             >
               Use AiRA Bot
-              <span style={{ color: 'var(--accent-warm, #c25e3d)', fontSize: '0.74rem' }}>⚡</span>
             </span>
             <span
               style={{

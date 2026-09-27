@@ -69,7 +69,7 @@ export async function checkRobots(provider: string): Promise<any> {
   try {
     const res = await fetch(item.robots_url, {
       headers: {
-        'User-Agent': 'AiRa-MoSPI-Research/1.0 (+https://github.com/SIH26056)',
+        'User-Agent': 'AiRA-MoSPI-Research/1.0 (+https://github.com/SIH26056)',
       },
       signal: AbortSignal.timeout(5000),
     });

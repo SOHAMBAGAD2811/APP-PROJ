@@ -1,6 +1,6 @@
 /**
  * server/models.ts
- * Data structures, constants, and types for AiRa India Airfare Intelligence.
+ * Data structures, constants, and types for AiRA India Airfare Intelligence.
  */
 
 export interface CorridorInfo {

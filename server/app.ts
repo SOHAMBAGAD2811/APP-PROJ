@@ -1,6 +1,6 @@
 /**
  * server/app.ts
- * Main Express application defining all API endpoints for the AiRa platform.
+ * Main Express application defining all API endpoints for the AiRA platform.
  * Exportable directly for Vercel serverless functions and local node dev server.
  */
 
@@ -600,7 +600,7 @@ app.get('/metrics', (req: Request, res: Response) => {
 });
 
 app.get('/api', (req: Request, res: Response) => {
-  res.json({ message: 'AiRa Multi-Source Airfare API v4.0 (Node/TS Serverless) — see /docs' });
+  res.json({ message: 'AiRA Multi-Source Airfare API v4.0 (Node/TS Serverless) — see /docs' });
 });
 
 export default app;

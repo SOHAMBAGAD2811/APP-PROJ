@@ -70,7 +70,7 @@ export function buildChatContext(req: ChatRequest): {
   const summaryRows = store.fetchApixSummaryRows('1 day', 30, 7);
   const summary = computeApixSummary(summaryRows);
 
-  const systemPrompt = `You are the Senior Aviation Economist & Intelligent Travel Assistant for AiRa (Airfare Research & Analysis System), supporting travellers seeking the best flight options and MoSPI / DGCA economic policy researchers.
+  const systemPrompt = `You are the Senior Aviation Economist & Intelligent Travel Assistant for AiRA (Airfare Research & Analysis System), supporting travellers seeking the best flight options and MoSPI / DGCA economic policy researchers.
 
 CORE METHODOLOGY:
 - Official Lowe Price Index Standard (DGCA FY 2024–25 domestic passenger traffic weights):
@@ -242,7 +242,7 @@ $$I_t = 100 \\times \\frac{\\sum_{i \\in \\text{observed}} w_i \\times (P_{it} /
 * **Macro Impact on CPI**: With a 0.138% weight in India's CPI basket, the current +4.2% airfare variation exerts a **+0.58 bps** contribution to headline inflation.`;
   }
 
-  return `### ✈️ AiRa Intelligent Flight Advisory
+  return `### ✈️ AiRA Intelligent Flight Advisory
 
 Here is the current operational flight outlook based on empirical market observations:
 

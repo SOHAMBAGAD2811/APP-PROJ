@@ -6,6 +6,7 @@ import {
   Maximize2, Minimize2, X
 } from 'lucide-react';
 import MarkdownContent from './chat/MarkdownContent';
+import AiRALogo from './AiRALogo';
 
 const DEFAULT_MODELS = [
   { id: 'llama3.2:latest', label: 'Llama 3.2 (Fast · 3.2B)', param_size: '3.2B' },
@@ -62,7 +63,7 @@ export default function ChatTab({
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hello! I am your **AiRa Aviation Intelligence Assistant**. I have real-time access to the flight quotes and DGCA corridor metrics currently in view.\n\nAsk me anything: compare prices between **EaseMyTrip** and **Google Flights**, find the cheapest non-stop departures, or analyze carrier price dispersion.",
+      content: "Hello! I am your **AiRA Aviation Intelligence Assistant**. I have real-time access to the flight quotes and DGCA corridor metrics currently in view.\n\nAsk me anything: compare prices between **EaseMyTrip** and **Google Flights**, find the cheapest non-stop departures, or analyze carrier price dispersion.",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     }
   ]);
@@ -348,8 +349,10 @@ export default function ChatTab({
       {/* ── Header ───────────────────────────────────────────── */}
       <div style={{
         padding: '12px 18px',
-        borderBottom: '1px solid var(--border)',
-        background: 'var(--bg-surface)',
+        borderBottom: isWidget ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid var(--border)',
+        background: isWidget
+          ? 'linear-gradient(135deg, #091e2b 0%, #113447 60%, #16435b 100%)'
+          : 'var(--bg-surface)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -359,40 +362,52 @@ export default function ChatTab({
         {/* Left: Branding & Status */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: 32,
-            height: 32,
+            width: 34,
+            height: 34,
             borderRadius: '8px',
-            background: 'var(--accent-1)',
-            color: '#ffffff',
+            background: isWidget ? 'rgba(255, 255, 255, 0.12)' : 'var(--accent-1)',
+            border: isWidget ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 2px 4px rgba(22, 67, 91, 0.2)'
+            boxShadow: '0 2px 6px rgba(11, 35, 49, 0.3)'
           }}>
-            <Bot size={18} />
+            <AiRALogo size={22} glow={isWidget} />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ fontWeight: 700, fontSize: '0.94rem', color: 'var(--text-primary)' }}>
-                AiRa Flight Intelligence
+              <span style={{
+                fontWeight: 800,
+                fontSize: '0.96rem',
+                color: isWidget ? '#ffffff' : 'var(--text-primary)',
+                letterSpacing: '-0.01em',
+              }}>
+                AiRA Flight Intelligence
               </span>
               <span style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '4px',
                 fontSize: '0.7rem',
-                fontWeight: 600,
+                fontWeight: 700,
                 padding: '2px 8px',
                 borderRadius: '12px',
-                background: portalBadge.bg,
-                color: portalBadge.color,
-                border: `1px solid ${portalBadge.border}`
+                background: isWidget ? 'rgba(56, 189, 248, 0.18)' : portalBadge.bg,
+                color: isWidget ? '#38bdf8' : portalBadge.color,
+                border: isWidget ? '1px solid rgba(56, 189, 248, 0.35)' : `1px solid ${portalBadge.border}`
               }}>
                 <Sparkles size={11} />
                 {portalBadge.label}
               </span>
             </div>
-            <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '1px' }}>
+            <div style={{
+              fontSize: '0.74rem',
+              color: isWidget ? 'rgba(255, 255, 255, 0.72)' : 'var(--text-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginTop: '1px',
+            }}>
               <span>RAG Vector Search & Empirical Quotes</span>
               <span>•</span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -400,26 +415,29 @@ export default function ChatTab({
                   width: 6,
                   height: 6,
                   borderRadius: '50%',
-                  background: modelStatus === 'offline' ? 'var(--amber)' : '#16a34a'
+                  background: modelStatus === 'offline' ? 'var(--amber)' : '#34d399',
+                  boxShadow: modelStatus === 'offline' ? 'none' : '0 0 6px #34d399'
                 }} />
-                {modelStatus === 'offline' ? 'Ollama Local Fallback' : 'Ollama Online'}
+                <span style={{ color: isWidget ? '#e2e8f0' : 'inherit' }}>
+                  {modelStatus === 'offline' ? 'Ollama Local Fallback' : 'Ollama Online'}
+                </span>
               </span>
             </div>
           </div>
         </div>
 
         {/* Right: Model Selector & Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            background: 'var(--bg-subtle)',
+            background: isWidget ? 'rgba(255, 255, 255, 0.12)' : 'var(--bg-subtle)',
             padding: '3px 8px',
             borderRadius: '6px',
-            border: '1px solid var(--border)'
+            border: isWidget ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid var(--border)'
           }}>
-            <SlidersHorizontal size={13} color="var(--text-muted)" />
+            <SlidersHorizontal size={13} color={isWidget ? 'rgba(255, 255, 255, 0.75)' : 'var(--text-muted)'} />
             <select
               value={selectedModel}
               onChange={(e) => setSelectedModel(e.target.value)}
@@ -429,14 +447,14 @@ export default function ChatTab({
                 border: 'none',
                 fontSize: '0.78rem',
                 fontWeight: 600,
-                color: 'var(--text-primary)',
+                color: isWidget ? '#ffffff' : 'var(--text-primary)',
                 cursor: 'pointer',
                 outline: 'none',
                 fontFamily: 'var(--font-sans)',
               }}
             >
               {models.map(m => (
-                <option key={m.id} value={m.id}>
+                <option key={m.id} value={m.id} style={{ color: '#173747', background: '#ffffff' }}>
                   {m.label || m.id}
                 </option>
               ))}
@@ -448,8 +466,8 @@ export default function ChatTab({
             disabled={loading}
             title="Reset conversation"
             style={{
-              background: 'transparent',
-              border: '1px solid var(--border)',
+              background: isWidget ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              border: isWidget ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid var(--border)',
               borderRadius: '6px',
               padding: '6px 10px',
               cursor: loading ? 'not-allowed' : 'pointer',
@@ -457,7 +475,7 @@ export default function ChatTab({
               alignItems: 'center',
               gap: '5px',
               fontSize: '0.76rem',
-              color: 'var(--text-secondary)',
+              color: isWidget ? '#ffffff' : 'var(--text-secondary)',
               transition: 'background 0.15s ease',
             }}
           >
@@ -466,22 +484,22 @@ export default function ChatTab({
           </button>
 
           {isWidget && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '2px', borderLeft: '1px solid var(--border)', paddingLeft: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '2px', borderLeft: '1px solid rgba(255, 255, 255, 0.2)', paddingLeft: '8px' }}>
               {onToggleFullscreen && (
                 <button
                   type="button"
                   title={isFullscreen ? 'Restore small window' : 'Full screen'}
                   onClick={onToggleFullscreen}
                   style={{
-                    background: 'transparent',
-                    border: '1px solid var(--border)',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '6px',
                     padding: '6px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--text-secondary)',
+                    color: '#ffffff',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -491,18 +509,18 @@ export default function ChatTab({
               {onClose && (
                 <button
                   type="button"
-                  title="Close chat"
+                  title="Close AiRA Bot"
                   onClick={onClose}
                   style={{
-                    background: 'transparent',
-                    border: '1px solid var(--border)',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     borderRadius: '6px',
                     padding: '6px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'var(--text-secondary)',
+                    color: '#ffffff',
                     transition: 'all 0.15s ease',
                   }}
                 >
@@ -580,15 +598,15 @@ export default function ChatTab({
                 height: 34,
                 borderRadius: '8px',
                 flexShrink: 0,
-                background: isUser ? 'var(--accent-1)' : isError ? 'var(--red-bg)' : '#ffffff',
-                border: `1px solid ${isUser ? 'transparent' : isError ? 'var(--red-border)' : 'var(--border)'}`,
+                background: isUser ? 'var(--accent-1)' : isError ? 'var(--red-bg)' : '#091e2b',
+                border: `1px solid ${isUser ? 'transparent' : isError ? 'var(--red-border)' : 'rgba(22, 67, 91, 0.25)'}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: isUser ? '#ffffff' : isError ? 'var(--red)' : 'var(--accent-1)',
-                boxShadow: isUser ? '0 2px 4px rgba(22, 67, 91, 0.2)' : 'var(--shadow-xs)'
+                color: isUser ? '#ffffff' : isError ? 'var(--red)' : '#ffffff',
+                boxShadow: isUser ? '0 2px 4px rgba(22, 67, 91, 0.2)' : '0 2px 5px rgba(11, 35, 49, 0.25)'
               }}>
-                {isUser ? <User size={16} /> : isError ? <AlertCircle size={16} /> : <Bot size={16} />}
+                {isUser ? <User size={16} /> : isError ? <AlertCircle size={16} /> : <AiRALogo size={20} glow />}
               </div>
 
               {/* Message Content Container */}

@@ -1,6 +1,6 @@
 /**
  * server/auth.ts
- * JWT authentication helpers for AiRa admin and export endpoints.
+ * JWT authentication helpers for AiRA admin and export endpoints.
  */
 
 import jwt from 'jsonwebtoken';

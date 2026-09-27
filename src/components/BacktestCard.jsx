@@ -78,7 +78,7 @@ export default function BacktestCard() {
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
             {benchmarkLoaded
               ? `Empirical validation against ${data.benchmark_months} months of DGCA reference fares (${data.benchmark_source?.split('(')[1]?.replace(')', '') ?? 'ICRA/industry estimates'}).`
-              : 'Comparing daily AiRa index movements against the live scraped fare series (log-change method).'}
+              : 'Comparing daily AiRA index movements against the live scraped fare series (log-change method).'}
           </div>
         </div>
 

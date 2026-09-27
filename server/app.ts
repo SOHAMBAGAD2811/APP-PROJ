@@ -18,6 +18,7 @@ import * as emtScraper from './scrapers/easemytrip';
 import * as ctScraper from './scrapers/cleartrip';
 import * as indigoScraper from './scrapers/indigo';
 import * as airindiaScraper from './scrapers/airindia';
+import { testSupabaseConnection, isSupabaseConfigured } from './supabase';
 
 const app = express();
 
@@ -412,6 +413,39 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 app.post('/api/chat/stream', async (req: Request, res: Response) => {
   try {
     await handleChatStream(req.body, res);
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message || String(err) });
+  }
+});
+
+// ── Admin: Supabase Database Synchronization ──────────────────────────────────
+
+app.get('/api/admin/supabase/status', async (_req: Request, res: Response) => {
+  const configured = isSupabaseConfigured();
+  if (!configured) {
+    res.json({
+      configured: false,
+      ok: false,
+      message: 'Supabase credentials not configured in environment (SUPABASE_URL, SUPABASE_ANON_KEY)',
+      flightCount: 0,
+    });
+    return;
+  }
+  const result = await testSupabaseConnection();
+  res.json({
+    configured: true,
+    ...result,
+  });
+});
+
+app.post('/api/admin/supabase/sync', async (_req: Request, res: Response) => {
+  try {
+    const stats = await store.syncFromSupabase();
+    res.json({
+      success: true,
+      synced: stats,
+      message: `Successfully synchronized ${stats.flights} flights and ${stats.calendar} calendar trends from Supabase.`,
+    });
   } catch (err: any) {
     res.status(500).json({ error: err?.message || String(err) });
   }

@@ -1,7 +1,7 @@
 /**
  * server/store.ts
  * In-memory and file-backed data store for fares, calendars, and APIx time-series.
- * Provides out-of-the-box support for Vercel serverless and local execution without PostgreSQL.
+ * Fully integrated with Supabase cloud PostgreSQL with seamless local JSON fallback.
  */
 
 import fs from 'fs';
@@ -9,6 +9,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import pg from 'pg';
 import { DGCA_CORRIDORS, normalizeCorridor, FlightFare, DailyFareTrend } from './models';
+import {
+  isSupabaseConfigured,
+  fetchFlightsFromSupabase,
+  insertFlightsToSupabase,
+  fetchCalendarFromSupabase,
+  insertCalendarToSupabase,
+  upsertJobToSupabase,
+} from './supabase';
 
 const { Pool } = pg;
 
@@ -39,6 +47,13 @@ class Store {
   constructor() {
     this.loadSeedData();
     this.initDatabase();
+
+    // If Supabase is configured, sync latest rows from cloud in the background
+    if (isSupabaseConfigured()) {
+      this.syncFromSupabase().catch((err) => {
+        console.warn('⚠️ [Store] Background Supabase sync notice:', err.message);
+      });
+    }
   }
 
   private async initDatabase(): Promise<void> {
@@ -55,7 +70,7 @@ class Store {
       console.log('✅ PostgreSQL connected successfully to', dbUrl.split('@')[1] || 'database');
     } catch (err) {
       this.dbAvailable = false;
-      console.warn('⚠️  PostgreSQL connection failed, using embedded time-series engine:', (err as any)?.message || err);
+      console.warn('⚠️ PostgreSQL direct pool unavailable, using Supabase/embedded time-series engine:', (err as any)?.message || err);
     }
   }
 
@@ -106,6 +121,41 @@ class Store {
     this.initialized = true;
   }
 
+  public async syncFromSupabase(): Promise<{ flights: number; calendar: number }> {
+    if (!isSupabaseConfigured()) {
+      return { flights: 0, calendar: 0 };
+    }
+
+    try {
+      const [emtFlights, ctFlights, indigoFlights, airindiaFlights, emtCal, ctCal] = await Promise.all([
+        fetchFlightsFromSupabase('emt'),
+        fetchFlightsFromSupabase('ct'),
+        fetchFlightsFromSupabase('indigo'),
+        fetchFlightsFromSupabase('airindia'),
+        fetchCalendarFromSupabase('emt'),
+        fetchCalendarFromSupabase('ct'),
+      ]);
+
+      let flightsCount = 0;
+      if (emtFlights.length) { this.faresCache['emt'] = emtFlights; flightsCount += emtFlights.length; }
+      if (ctFlights.length) { this.faresCache['ct'] = ctFlights; flightsCount += ctFlights.length; }
+      if (indigoFlights.length) { this.faresCache['indigo'] = indigoFlights; flightsCount += indigoFlights.length; }
+      if (airindiaFlights.length) { this.faresCache['airindia'] = airindiaFlights; flightsCount += airindiaFlights.length; }
+
+      let calCount = 0;
+      if (emtCal.length) { this.calendarCache['emt'] = emtCal; calCount += emtCal.length; }
+      if (ctCal.length) { this.calendarCache['ct'] = ctCal; calCount += ctCal.length; }
+
+      if (flightsCount > 0 || calCount > 0) {
+        console.log(`☁️ [Store] Synced from Supabase: ${flightsCount} flight quotes, ${calCount} calendar trends`);
+      }
+      return { flights: flightsCount, calendar: calCount };
+    } catch (err: any) {
+      console.warn('⚠️ [Store] Error syncing with Supabase:', err.message);
+      return { flights: 0, calendar: 0 };
+    }
+  }
+
   public getFares(source: string): FlightFare[] {
     this.loadSeedData();
     if (source === 'both') {
@@ -133,6 +183,15 @@ class Store {
   public saveFares(source: string, fares: FlightFare[]): void {
     this.loadSeedData();
     this.faresCache[source] = fares;
+
+    // Asynchronously push to Supabase
+    if (isSupabaseConfigured()) {
+      insertFlightsToSupabase(source, fares).catch((err) => {
+        console.warn(`[Store] Supabase saveFares (${source}) failed:`, err.message);
+      });
+    }
+
+    // Local JSON snapshot
     try {
       const target = this.resolveFilePath(`${source}_fares.json`) || path.join(process.cwd(), `${source}_fares.json`);
       fs.writeFileSync(target, JSON.stringify(fares, null, 2), 'utf-8');
@@ -142,6 +201,15 @@ class Store {
   public saveCalendar(source: string, trends: DailyFareTrend[]): void {
     this.loadSeedData();
     this.calendarCache[source] = trends;
+
+    // Asynchronously push to Supabase
+    if (isSupabaseConfigured()) {
+      insertCalendarToSupabase(source, trends).catch((err) => {
+        console.warn(`[Store] Supabase saveCalendar (${source}) failed:`, err.message);
+      });
+    }
+
+    // Local JSON snapshot
     try {
       const target = this.resolveFilePath(`${source}_calendar.json`) || path.join(process.cwd(), `${source}_calendar.json`);
       fs.writeFileSync(target, JSON.stringify(trends, null, 2), 'utf-8');
@@ -163,6 +231,11 @@ class Store {
       started_at: new Date().toISOString(),
     };
     this.jobs.set(jobId, job);
+
+    if (isSupabaseConfigured()) {
+      upsertJobToSupabase(jobId, job).catch(() => {});
+    }
+
     return { jobId, job };
   }
 
@@ -173,7 +246,12 @@ class Store {
   public updateJob(jobId: string, updates: Partial<JobRecord>): void {
     const existing = this.jobs.get(jobId);
     if (existing) {
-      this.jobs.set(jobId, { ...existing, ...updates });
+      const updated = { ...existing, ...updates };
+      this.jobs.set(jobId, updated);
+
+      if (isSupabaseConfigured()) {
+        upsertJobToSupabase(jobId, updated).catch(() => {});
+      }
     }
   }
 

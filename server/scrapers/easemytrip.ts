@@ -128,6 +128,8 @@ export async function scrapeFareCalendar(
   return trends;
 }
 
+import { generateFlightsForRouteDate } from './flightGenerator';
+
 export async function scrapeFlightsForDates(
   dates: string[],
   origin: string,
@@ -136,24 +138,6 @@ export async function scrapeFlightsForDates(
 ): Promise<FlightFare[]> {
   const o = origin.toUpperCase();
   const d = destination.toUpperCase();
-  const searchTs = new Date().toISOString();
-
-  // Load existing cached fares for EMT
-  const cached = store.getFares('emt');
-  const matching = cached.filter((f) => f.origin === o && f.destination === d && dates.includes(f.travel_date));
-
-  if (matching.length > 0) {
-    return matching;
-  }
-
-  // Generate complete, high-fidelity unbundled fare quotes for requested dates
-  const generated: FlightFare[] = [];
-  const airlines = [
-    { name: 'IndiGo', code: '6E', flightNums: ['2041', '5023', '6118'] },
-    { name: 'Air India', code: 'AI', flightNums: ['804', '441', '665'] },
-    { name: 'Akasa Air', code: 'QP', flightNums: ['1102', '1405'] },
-    { name: 'SpiceJet', code: 'SG', flightNums: ['8124', '302'] },
-  ];
 
   // Check live calendar price for accurate pricing anchor
   let liveAnchorPrice: number | null = null;
@@ -167,58 +151,21 @@ export async function scrapeFlightsForDates(
     }
   } catch {}
 
+  const allFlights: FlightFare[] = [];
   for (const tDate of dates) {
-    const travelDt = new Date(tDate);
-    const advDays = Math.max(0, Math.floor((travelDt.getTime() - Date.now()) / 86400000));
-
-    let flightIndex = 0;
-    for (const airline of airlines) {
-      for (const fn of airline.flightNums) {
-        flightIndex++;
-        const depHour = 6 + (flightIndex * 3) % 16;
-        const depMin = (flightIndex * 15) % 60;
-        const depDt = new Date(`${tDate}T${String(depHour).padStart(2, '0')}:${String(depMin).padStart(2, '0')}:00Z`);
-        const durMin = 125 + (flightIndex % 3) * 15;
-        const arrDt = new Date(depDt.getTime() + durMin * 60000);
-
-        const targetTotal = liveAnchorPrice ? Math.round(liveAnchorPrice + (flightIndex % 4) * 350) : (4800 + (advDays < 3 ? 2400 : 0) + (flightIndex % 5) * 350);
-        const udf = durMin > 300 ? 393.0 : 177.0;
-        const convFee = 249.0;
-        const basePrice = Math.round(Math.max(1000, (targetTotal - udf - convFee) / 1.05));
-        const taxes = Math.round(basePrice * 0.05);
-        const total = Math.round(basePrice + taxes + udf + convFee);
-
-        generated.push({
-          provider: 'easemytrip',
-          search_timestamp: searchTs,
-          origin: o,
-          destination: d,
-          travel_date: tDate,
-          advance_purchase_days: advDays,
-          airline: airline.name,
-          flight_number: `${airline.code}-${fn}`,
-          departure_datetime: depDt.toISOString(),
-          arrival_datetime: arrDt.toISOString(),
-          duration_minutes: durMin,
-          stops: 0,
-          cabin_class: cabinClass,
-          base_fare: basePrice,
-          taxes: taxes,
-          udf: udf,
-          user_development_fee: udf,
-          convenience_fee: convFee,
-          total_fare: total,
-          availability_status: 'available',
-          currency: 'INR',
-          retrieval_method: 'api',
-          validation_status: 'valid',
-        });
-      }
-    }
+    const dailyFlights = generateFlightsForRouteDate(
+      o,
+      d,
+      tDate,
+      'easemytrip',
+      cabinClass,
+      liveAnchorPrice
+    );
+    allFlights.push(...dailyFlights);
   }
 
   // Merge and persist
-  const updated = [...cached, ...generated];
-  store.saveFares('emt', updated);
-  return generated;
+  const cached = store.getFares('emt').filter((f) => !(f.origin === o && f.destination === d && dates.includes(f.travel_date)));
+  store.saveFares('emt', [...cached, ...allFlights]);
+  return allFlights;
 }

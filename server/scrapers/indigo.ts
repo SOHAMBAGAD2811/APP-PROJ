@@ -41,9 +41,10 @@ export async function scrapeFlightsForDates(
   if (cached.length > 0) return cached;
 
   const gfFares = await gf.scrapeFlightsForDates(dates, origin, destination, cabinClass);
+  const indigoCandidates = gfFares.filter((f) => f.airline === 'IndiGo');
   const indigoFares: FlightFare[] = [];
 
-  for (const f of gfFares) {
+  for (const f of indigoCandidates) {
     const total = f.total_fare || 0;
     const durMin = f.duration_minutes || 120;
     const udf = durMin > 300 ? 393.0 : 177.0;

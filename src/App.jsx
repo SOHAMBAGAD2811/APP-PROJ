@@ -17,7 +17,8 @@ import {
   User,
   Sliders,
   Terminal,
-  Layers
+  Layers,
+  Code2
 } from 'lucide-react';
 import SearchPanel    from './components/SearchPanel';
 import StatsBar       from './components/StatsBar';
@@ -34,16 +35,19 @@ import ScrapeProgressBar from './components/ScrapeProgressBar';
 import FloatingChatWidget from './components/FloatingChatWidget';
 import LandingPage    from './components/LandingPage';
 import AuthPage       from './components/AuthPage';
+import DocsPage       from './components/DocsPage';
 
 export default function App() {
-  // Navigation / Routing State: 'landing' | 'terminal' | 'auth'
+  // Navigation / Routing State: 'landing' | 'terminal' | 'auth' | 'docs'
   const [view, setView] = useState(() => {
     const path = window.location.pathname;
     if (path === '/auth' || path === '/login') return 'auth';
     if (path === '/terminal' || path === '/dashboard' || path === '/app') return 'terminal';
+    if (path === '/docs' || path === '/api-docs') return 'docs';
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'auth') return 'auth';
     if (params.get('view') === 'terminal') return 'terminal';
+    if (params.get('view') === 'docs') return 'docs';
     if (params.get('view') === 'landing') return 'landing';
     return 'landing'; // default landing page as requested
   });
@@ -86,6 +90,7 @@ export default function App() {
       const p = window.location.pathname;
       if (p === '/auth' || p === '/login') setView('auth');
       else if (p === '/terminal' || p === '/dashboard') setView('terminal');
+      else if (p === '/docs' || p === '/api-docs') setView('docs');
       else setView('landing');
     };
     window.addEventListener('popstate', handlePopState);
@@ -276,10 +281,10 @@ export default function App() {
               MoSPI Audit
             </button>
             <button
-              className="app-nav-btn"
-              onClick={() => navigateTo('landing', '#api-specs')}
+              className={`app-nav-btn ${view === 'docs' ? 'active' : ''}`}
+              onClick={() => navigateTo('docs')}
             >
-              API Specs
+              <Code2 size={14} /> API Docs
             </button>
           </nav>
         </div>
@@ -347,7 +352,12 @@ export default function App() {
         <LandingPage
           onLaunchTerminal={(hash = '') => navigateTo('terminal', hash)}
           onGoToAuth={() => navigateTo('auth')}
+          onGoToDocs={() => navigateTo('docs')}
         />
+      )}
+
+      {view === 'docs' && (
+        <DocsPage onGoToLanding={() => navigateTo('landing')} />
       )}
 
       {view === 'auth' && (

@@ -34,7 +34,7 @@ import {
   Info
 } from 'lucide-react';
 
-export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
+export default function LandingPage({ onLaunchTerminal, onGoToAuth, onGoToDocs }) {
   const [selectedReq, setSelectedReq] = useState(null);
   const [selectedCorridor, setSelectedCorridor] = useState('DEL-BOM');
   const [activeTab, setActiveTab] = useState('all');
@@ -846,87 +846,8 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
         </div>
       </section>
 
-      {/* ── Institutional API Endpoints (For NSO & RBI) ── */}
-      <section className="landing-section" id="api-specs">
-        <div className="landing-container">
-          <div className="section-head">
-            <span className="section-kicker">INSTITUTIONAL INTEGRATION</span>
-            <h2>Machine-Consumable APIs &amp; Open Data Feeds</h2>
-            <p>
-              Secure, high-availability endpoints designed for automated ingestion by the National Statistical Office (NSO) 
-              and Reserve Bank of India (RBI).
-            </p>
-          </div>
 
-          <div className="api-showcase-grid">
-            <div className="api-endpoints-table">
-              <div className="endpoint-item">
-                <div className="endpoint-method get">GET</div>
-                <div className="endpoint-path">/api/apix/summary</div>
-                <div className="endpoint-desc">Current composite index, 24h delta, base period comparison, and corridor weights.</div>
-              </div>
-              <div className="endpoint-item">
-                <div className="endpoint-method get">GET</div>
-                <div className="endpoint-path">/api/apix/series?interval=daily</div>
-                <div className="endpoint-desc">Historical time-bucketed index series for macroeconomic time-series econometric modeling.</div>
-              </div>
-              <div className="endpoint-item">
-                <div className="endpoint-method get">GET</div>
-                <div className="endpoint-path">/api/export/csv</div>
-                <div className="endpoint-desc">Open Government Data (OGD) compliant CSV download of sanitized domestic fare records.</div>
-              </div>
-              <div className="endpoint-item">
-                <div className="endpoint-method get">GET</div>
-                <div className="endpoint-path">/api/export/bulletin</div>
-                <div className="endpoint-desc">Official formatted MoSPI Price Statistics Division text bulletin ready for policy release.</div>
-              </div>
-              <div className="endpoint-item">
-                <div className="endpoint-method post">POST</div>
-                <div className="endpoint-path">/api/simulate</div>
-                <div className="endpoint-desc">What-If policy simulation engine: Aviation Turbine Fuel (ATF) price shocks and demand elasticity.</div>
-              </div>
-              <div className="endpoint-item">
-                <div className="endpoint-method get">GET</div>
-                <div className="endpoint-path">/metrics</div>
-                <div className="endpoint-desc">Prometheus telemetry for active scraping jobs and TimescaleDB health monitoring.</div>
-              </div>
-            </div>
 
-            <div className="curl-preview-box">
-              <div className="curl-head">
-                <div className="terminal-dots">
-                  <span className="dot red" />
-                  <span className="dot yellow" />
-                  <span className="dot green" />
-                </div>
-                <span>SAMPLE NSO / RBI INTEGRATION REQUEST</span>
-              </div>
-              <pre className="curl-code">
-{`# 1. Fetch current Airfare Price Index summary
-curl -X GET "https://aira.mospi.gov.in/api/apix/summary" \\
-  -H "Authorization: Bearer <OFFICIAL_JWT_TOKEN>"
-
-# Response:
-{
-  "apix": 114.82,
-  "base_period": "2024-Q1 = 100.0",
-  "change_24h": "+1.42%",
-  "basket_corridors": 6,
-  "weights_source": "DGCA Domestic Traffic FY 2024-25",
-  "corridor_breakdown": {
-    "DEL-BOM": { "index": 118.2, "weight": 0.245, "median_fare": 6450 },
-    "DEL-BLR": { "index": 112.4, "weight": 0.198, "median_fare": 7100 },
-    "BOM-BLR": { "index": 109.8, "weight": 0.172, "median_fare": 4850 },
-    "DEL-CCU": { "index": 116.5, "weight": 0.141, "median_fare": 6920 },
-    "MAA-DEL": { "index": 115.1, "weight": 0.126, "median_fare": 7340 },
-    "BLR-HYD": { "index": 108.3, "weight": 0.118, "median_fare": 3890 }
-  }
-}`}
-              </pre>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* ── Final Direct Action Banner ── */}
       <section className="landing-cta-banner">
@@ -994,6 +915,7 @@ curl -X GET "https://aira.mospi.gov.in/api/apix/summary" \\
                 <li><a href="#stakeholder-portals" className="footer-link-btn">Stakeholder Portals</a></li>
                 <li><a href="#methodology" className="footer-link-btn">PSD Lowe Index Math</a></li>
                 <li><a href="#compliance-matrix" className="footer-link-btn">MoSPI Compliance Matrix (100%)</a></li>
+                <li><button onClick={onGoToDocs} className="footer-link-btn">API Documentation</button></li>
                 <li><button onClick={onGoToAuth} className="footer-link-btn">Institutional Sign In</button></li>
               </ul>
             </div>
@@ -1028,9 +950,9 @@ curl -X GET "https://aira.mospi.gov.in/api/apix/summary" \\
                   </a>
                 </li>
                 <li>
-                  <a href="#api-specs" className="footer-ext-link">
-                    Open Government Data (OGD) API <ExternalLink size={11} />
-                  </a>
+                  <button onClick={onGoToDocs} className="footer-ext-link" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                    API Reference &amp; Documentation <ExternalLink size={11} />
+                  </button>
                 </li>
               </ul>
             </div>

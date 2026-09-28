@@ -338,9 +338,9 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
         </div>
       </div>
 
-      {/* ── Hero Section with Neermalya Dynamic Imagery & Atmospheric Backdrop ── */}
+      {/* ── Hero Section with Atmospheric Aviation Carousel ── */}
       <section className="landing-hero">
-        {/* Dynamic Background Image Carousel (Neermalya photography approach) */}
+        {/* Dynamic Background Image Carousel */}
         <div className="hero-bg-carousel" aria-hidden="true">
           {heroSlides.map((slide, idx) => (
             <div
@@ -354,46 +354,20 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
         </div>
 
         <div className="landing-hero-inner">
-          {/* Official Statistical Bulletin Release Badge */}
-          <div className="hero-announcement-wrapper">
-            <button
-              className="hero-bulletin-btn"
-              onClick={() => onLaunchTerminal?.('.apix-section-anchor')}
-              title="Inspect official APIx time-series in live terminal"
-            >
-              <span className="bulletin-division-tag">MoSPI · Price Statistics Division</span>
-              <span className="bulletin-sep">/</span>
-              <span className="bulletin-title">National Airfare Price Index</span>
-              <span className="bulletin-score">APIx 114.82</span>
-              <span className="bulletin-delta">+1.42% (24h)</span>
-              <span className="bulletin-base">Base 2024-Q1 = 100</span>
-              <ChevronRight size={13} className="bulletin-arrow" />
-            </button>
-          </div>
-
+          {/* Kicker */}
           <div className="landing-hero-kicker">
-            <span className="badge badge-accent">OFFICIAL MOSPI / DIID SPECIFICATION</span>
-            <span className="kicker-tag">Aviation Transport Price Statistics</span>
+            <span className="badge badge-accent">MoSPI · DIID PROBLEM STATEMENT</span>
+            <span className="kicker-tag">Aviation Transport Price Statistics · Government of India</span>
           </div>
 
           <h1 className="landing-hero-title">
-            Real-Time Airfare Price Index <span className="title-accent">(APIx)</span> for India
+            Real-Time Airfare<br />Price Index <span className="title-accent">(APIx)</span> for India
           </h1>
 
           <p className="landing-hero-subtitle">
-            Autonomous multi-source scraping of airline and OTA portals, statistical outlier filtering, 
-            and DGCA passenger-weighted Lowe price index construction designed for the Ministry of Statistics 
-            and Programme Implementation (MoSPI) and Reserve Bank of India (RBI).
+            Autonomous daily scraping of airline and OTA portals, DGCA-weighted Lowe price index construction,
+            and machine-consumable APIs built for MoSPI and the Reserve Bank of India.
           </p>
-
-          {/* Technical Telemetry Ticker */}
-          <div className="hero-ticker-box">
-            <div className="hero-ticker-inner">
-              <span className="ticker-label-badge">{currentTicker.label}</span>
-              <span className="ticker-sep">|</span>
-              <span className="hero-ticker-text">{currentTicker.text}</span>
-            </div>
-          </div>
 
           <div className="landing-hero-actions">
             <button className="btn btn-primary btn-lg" onClick={() => onLaunchTerminal?.()}>
@@ -405,32 +379,9 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
               <Shield size={18} />
               Institutional Sign In
             </button>
-            <a href="#feature-comparison" className="btn btn-ghost btn-lg">
-              <Scale size={18} />
-              Feature Comparison
-            </a>
-            <a href="#compliance-matrix" className="btn btn-ghost btn-lg">
-              <CheckCircle2 size={18} />
-              MoSPI Audit Matrix (100%)
-            </a>
           </div>
 
-          {/* Scraped Domestic Fleet & Aggregators Inventory Strip */}
-          <div className="hero-fleet-strip">
-            <span className="fleet-strip-label">DIRECT CARRIERS &amp; AGGREGATORS SCRAPED:</span>
-            <div className="fleet-badges">
-              <span className="fleet-pill">IndiGo (6E)</span>
-              <span className="fleet-pill">Air India (AI)</span>
-              <span className="fleet-pill">AIX Connect (IX)</span>
-              <span className="fleet-pill">Akasa Air (QP)</span>
-              <span className="fleet-pill">SpiceJet (SG)</span>
-              <span className="fleet-pill">EaseMyTrip</span>
-              <span className="fleet-pill">Cleartrip</span>
-              <span className="fleet-pill">Google Flights</span>
-            </div>
-          </div>
-
-          {/* Quick Metrics Bar */}
+          {/* 4 Key Stats */}
           <div className="landing-stats-grid">
             <div className="landing-stat-card stat-accent-gold">
               <div className="stat-icon-row"><CheckCircle2 size={14} className="stat-accent-icon" /></div>
@@ -444,16 +395,10 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
               <div className="stat-label">DGCA High-Density Basket</div>
               <div className="stat-sub">~60% national domestic traffic</div>
             </div>
-            <div className="landing-stat-card stat-accent-slate">
-              <div className="stat-icon-row"><Clock size={14} className="stat-accent-icon" /></div>
-              <div className="stat-num">T+1 to T+45</div>
-              <div className="stat-label">Advance-Purchase Grid</div>
-              <div className="stat-sub">5 stratified lead-time horizons</div>
-            </div>
             <div className="landing-stat-card stat-accent-teal">
               <div className="stat-icon-row"><RefreshCw size={14} className="stat-accent-icon" /></div>
-              <div className="stat-num">02:00 IST</div>
-              <div className="stat-label">Autonomous Daily Daemon</div>
+              <div className="stat-num">Daily 02:00 IST</div>
+              <div className="stat-label">Autonomous Scraper Daemon</div>
               <div className="stat-sub">TimescaleDB basket sweep pipeline</div>
             </div>
             <div className="landing-stat-card stat-accent-amber">
@@ -464,25 +409,16 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
             </div>
           </div>
 
-          {/* Interactive Slide Scene Switchers */}
-          <div className="hero-slide-controls">
+          {/* Simple carousel dots */}
+          <div className="hero-carousel-dots">
             {heroSlides.map((slide, idx) => (
               <button
                 key={slide.src}
-                className={`hero-slide-pill ${idx === slideIndex ? 'active' : ''}`}
+                className={`hero-dot ${idx === slideIndex ? 'active' : ''}`}
                 onClick={() => setSlideIndex(idx)}
-                title={slide.desc}
-              >
-                <span className="hero-slide-dot" />
-                <span>{slide.title}</span>
-              </button>
+                aria-label={slide.title}
+              />
             ))}
-          </div>
-
-          {/* Subtle Scroll Indicator */}
-          <div className="hero-scroll-indicator" aria-hidden="true">
-            <div className="scroll-indicator-line" />
-            <div className="scroll-indicator-label">SCROLL</div>
           </div>
         </div>
       </section>

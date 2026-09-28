@@ -1493,7 +1493,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .landing-hero {
   position: relative;
   overflow: hidden;
-  padding: 64px max(28px, calc((100vw - 1280px) / 2)) 52px;
+  padding: 80px max(28px, calc((100vw - 1280px) / 2)) 64px;
   background: #081924;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   color: #ffffff;
@@ -1681,7 +1681,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* Landing Stats Grid (Frosted Glass on Dark Hero) */
 .landing-stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   width: 100%;
 }
@@ -3500,7 +3500,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 /* Landing & Auth Responsive */
 @media (max-width: 1024px) {
-  .landing-stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .landing-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .compliance-grid { grid-template-columns: repeat(2, 1fr); }
   .role-portals-grid { grid-template-columns: repeat(2, 1fr); }
   .gov-footer-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
@@ -3720,3 +3720,33 @@ input[type="range"]::-webkit-slider-thumb:hover {
   opacity: 0.4;
 }
 
+
+/* ── Simple Carousel Dots ── */
+.hero-carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.hero-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.hero-dot.active {
+  background: #d4af37;
+  width: 20px;
+  border-radius: 3px;
+}
+
+.hero-dot:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.6);
+}

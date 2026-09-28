@@ -32,7 +32,6 @@ import FlightsTable from './FlightsTable';
 
 export default function AgencyDashboard({
   agency = 'mospi',
-  onChangeAgency,
   currentUser,
   flights = [],
   emtFlights = [],
@@ -45,14 +44,8 @@ export default function AgencyDashboard({
   sweepInfo,
   onOpenManualSearch
 }) {
-  const [activeAgency, setActiveAgency] = useState(agency || 'mospi');
+  const userAgency = currentUser?.agency || agency || 'mospi';
   const [bulletinModalOpen, setBulletinModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
-
-  function handleSwitch(newAgency) {
-    setActiveAgency(newAgency);
-    if (onChangeAgency) onChangeAgency(newAgency);
-  }
 
   // Official DGCA Corridor weights data
   const corridors = [
@@ -66,81 +59,10 @@ export default function AgencyDashboard({
 
   return (
     <div className="agency-dashboard-root anim-fade-in">
-      {/* ── Agency Workspace Switcher Bar ── */}
-      <div className="agency-switcher-panel glass">
-        <div className="agency-switcher-header">
-          <span className="agency-kicker">INSTITUTIONAL WORKSPACE:</span>
-          <span className="agency-user-tag">
-            Session: <strong>{currentUser?.fullName || 'Official Guest'}</strong> ({currentUser?.organization || 'MoSPI / GoI'})
-          </span>
-        </div>
-
-        <div className="agency-nav-pills">
-          <button
-            className={`agency-pill ${activeAgency === 'mospi' ? 'active-mospi' : ''}`}
-            onClick={() => handleSwitch('mospi')}
-          >
-            <span className="agency-pill-icon"><Landmark size={15} /></span>
-            <div className="agency-pill-meta">
-              <span className="agency-pill-title">MoSPI Dashboard</span>
-              <span className="agency-pill-sub">Price Statistics Division (PSD)</span>
-            </div>
-            {activeAgency === 'mospi' && <span className="agency-dot-live" />}
-          </button>
-
-          <button
-            className={`agency-pill ${activeAgency === 'rbi' ? 'active-rbi' : ''}`}
-            onClick={() => handleSwitch('rbi')}
-          >
-            <span className="agency-pill-icon"><TrendingUp size={15} /></span>
-            <div className="agency-pill-meta">
-              <span className="agency-pill-title">RBI Dashboard</span>
-              <span className="agency-pill-sub">Monetary Policy &amp; Inflation</span>
-            </div>
-            {activeAgency === 'rbi' && <span className="agency-dot-live" />}
-          </button>
-
-          <button
-            className={`agency-pill ${activeAgency === 'dgca' ? 'active-dgca' : ''}`}
-            onClick={() => handleSwitch('dgca')}
-          >
-            <span className="agency-pill-icon"><Plane size={15} /></span>
-            <div className="agency-pill-meta">
-              <span className="agency-pill-title">DGCA Dashboard</span>
-              <span className="agency-pill-sub">Tariff Monitoring &amp; Unbundling</span>
-            </div>
-            {activeAgency === 'dgca' && <span className="agency-dot-live" />}
-          </button>
-
-          <button
-            className={`agency-pill ${activeAgency === 'nso' ? 'active-nso' : ''}`}
-            onClick={() => handleSwitch('nso')}
-          >
-            <span className="agency-pill-icon"><Database size={15} /></span>
-            <div className="agency-pill-meta">
-              <span className="agency-pill-title">NSO Dashboard</span>
-              <span className="agency-pill-sub">Data Hygiene &amp; Imputation</span>
-            </div>
-            {activeAgency === 'nso' && <span className="agency-dot-live" />}
-          </button>
-
-          <button
-            className={`agency-pill ${activeAgency === 'all' ? 'active-all' : ''}`}
-            onClick={() => handleSwitch('all')}
-          >
-            <span className="agency-pill-icon"><Layers size={15} /></span>
-            <div className="agency-pill-meta">
-              <span className="agency-pill-title">Unified View</span>
-              <span className="agency-pill-sub">All Modules Combined</span>
-            </div>
-          </button>
-        </div>
-      </div>
-
       {/* ────────────────────────────────────────────────────────────
           1. MoSPI Price Statistics Division Dashboard
           ──────────────────────────────────────────────────────────── */}
-      {(activeAgency === 'mospi' || activeAgency === 'all') && (
+      {(userAgency === 'mospi' || userAgency === 'all') && (
         <section className="agency-section agency-mospi anim-slide">
           <div className="agency-header-card agency-header-mospi">
             <div className="agency-header-left">
@@ -240,7 +162,7 @@ export default function AgencyDashboard({
       {/* ────────────────────────────────────────────────────────────
           2. Reserve Bank of India (RBI) Monetary Policy Dashboard
           ──────────────────────────────────────────────────────────── */}
-      {(activeAgency === 'rbi' || activeAgency === 'all') && (
+      {(userAgency === 'rbi' || userAgency === 'all') && (
         <section className="agency-section agency-rbi anim-slide">
           <div className="agency-header-card agency-header-rbi">
             <div className="agency-header-left">
@@ -302,7 +224,7 @@ export default function AgencyDashboard({
       {/* ────────────────────────────────────────────────────────────
           3. DGCA Regulatory & Tariff Directorate Dashboard
           ──────────────────────────────────────────────────────────── */}
-      {(activeAgency === 'dgca' || activeAgency === 'all') && (
+      {(userAgency === 'dgca' || userAgency === 'all') && (
         <section className="agency-section agency-dgca anim-slide">
           <div className="agency-header-card agency-header-dgca">
             <div className="agency-header-left">
@@ -421,7 +343,7 @@ export default function AgencyDashboard({
       {/* ────────────────────────────────────────────────────────────
           4. NSO Data Informatics & Survey Division Dashboard
           ──────────────────────────────────────────────────────────── */}
-      {(activeAgency === 'nso' || activeAgency === 'all') && (
+      {(userAgency === 'nso' || userAgency === 'all') && (
         <section className="agency-section agency-nso anim-slide">
           <div className="agency-header-card agency-header-nso">
             <div className="agency-header-left">

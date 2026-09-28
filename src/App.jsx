@@ -43,12 +43,18 @@ export default function App() {
   const [view, setView] = useState(() => {
     const path = window.location.pathname;
     if (path === '/auth' || path === '/login') return 'auth';
-    if (path === '/terminal' || path === '/dashboard' || path === '/app') return 'terminal';
     if (path === '/docs' || path === '/api-docs') return 'docs';
+    if (path === '/terminal' || path === '/dashboard' || path === '/app') {
+      const stored = localStorage.getItem('aira_user');
+      return stored ? 'terminal' : 'auth';
+    }
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'auth') return 'auth';
-    if (params.get('view') === 'terminal') return 'terminal';
     if (params.get('view') === 'docs') return 'docs';
+    if (params.get('view') === 'terminal') {
+      const stored = localStorage.getItem('aira_user');
+      return stored ? 'terminal' : 'auth';
+    }
     if (params.get('view') === 'landing') return 'landing';
     return 'landing'; // default landing page as requested
   });
@@ -106,7 +112,10 @@ export default function App() {
     const handlePopState = () => {
       const p = window.location.pathname;
       if (p === '/auth' || p === '/login') setView('auth');
-      else if (p === '/terminal' || p === '/dashboard') setView('terminal');
+      else if (p === '/terminal' || p === '/dashboard') {
+        const stored = localStorage.getItem('aira_user');
+        setView(stored ? 'terminal' : 'auth');
+      }
       else if (p === '/docs' || p === '/api-docs') setView('docs');
       else setView('landing');
     };
@@ -133,6 +142,19 @@ export default function App() {
   }, [sweepState]);
 
   function navigateTo(targetView, hash = '') {
+    // Terminal requires authentication
+    if (targetView === 'terminal' && !currentUser) {
+      if (['mospi', 'rbi', 'dgca', 'nso'].includes(hash)) {
+        setActiveAgency(hash);
+      }
+      setView('auth');
+      try {
+        window.history.pushState({ view: 'auth' }, '', '/auth');
+      } catch {}
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     setView(targetView);
     if (['mospi', 'rbi', 'dgca', 'nso', 'all'].includes(hash)) {
       setActiveAgency(hash);
@@ -158,6 +180,7 @@ export default function App() {
     localStorage.removeItem('aira_token');
     localStorage.removeItem('aira_user');
     setCurrentUser(null);
+    navigateTo('landing');
   }
 
   function openManualSearch() {
@@ -395,8 +418,7 @@ export default function App() {
         <main className="app-main">
           {/* ── Agency-Tailored Dashboard for MoSPI, RBI, DGCA, and NSO ── */}
           <AgencyDashboard
-            agency={activeAgency}
-            onChangeAgency={setActiveAgency}
+            agency={currentUser?.agency || activeAgency || 'mospi'}
             currentUser={currentUser}
             flights={flights}
             emtFlights={emtFlights}

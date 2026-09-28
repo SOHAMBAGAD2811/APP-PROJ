@@ -253,34 +253,7 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
           </p>
         </div>
 
-        {/* If already authenticated, show active session banner */}
-        {currentUser && (
-          <div className="active-session-card glass">
-            <div className="session-info-row">
-              <div className="session-avatar">
-                <Shield size={24} />
-              </div>
-              <div>
-                <div className="session-name">{currentUser.fullName}</div>
-                <div className="session-org">{currentUser.organization} · <em>{currentUser.department || currentUser.role}</em></div>
-                <div className="session-meta">
-                  <span className="badge badge-green">ACTIVE SESSION (ROLE: {currentUser.role?.toUpperCase()})</span>
-                  <span>Username: <code>{currentUser.username}</code></span>
-                </div>
-              </div>
-            </div>
 
-            <div className="session-actions">
-              <button className="btn btn-primary" onClick={() => onAuthSuccess && onAuthSuccess(currentUser)}>
-                <Terminal size={16} /> Enter Intelligence Terminal
-                <ArrowRight size={14} />
-              </button>
-              <button className="btn btn-ghost" onClick={handleLogout}>
-                <LogOut size={16} /> Sign Out
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Status Alerts */}
         {errorMsg && (

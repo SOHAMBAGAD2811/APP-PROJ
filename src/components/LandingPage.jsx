@@ -450,27 +450,32 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
 
           {/* Quick Metrics Bar */}
           <div className="landing-stats-grid">
-            <div className="landing-stat-card">
+            <div className="landing-stat-card stat-accent-gold">
+              <div className="stat-icon-row"><CheckCircle2 size={14} className="stat-accent-icon" /></div>
               <div className="stat-num">100%</div>
               <div className="stat-label">MoSPI Compliance Score</div>
               <div className="stat-sub">All 12 DIID criteria fulfilled</div>
             </div>
-            <div className="landing-stat-card">
+            <div className="landing-stat-card stat-accent-sky">
+              <div className="stat-icon-row"><Plane size={14} className="stat-accent-icon" /></div>
               <div className="stat-num">6 Corridors</div>
               <div className="stat-label">DGCA High-Density Basket</div>
               <div className="stat-sub">~60% national domestic traffic</div>
             </div>
-            <div className="landing-stat-card">
+            <div className="landing-stat-card stat-accent-slate">
+              <div className="stat-icon-row"><Clock size={14} className="stat-accent-icon" /></div>
               <div className="stat-num">T+1 to T+45</div>
               <div className="stat-label">Advance-Purchase Grid</div>
               <div className="stat-sub">5 stratified lead-time horizons</div>
             </div>
-            <div className="landing-stat-card">
+            <div className="landing-stat-card stat-accent-teal">
+              <div className="stat-icon-row"><RefreshCw size={14} className="stat-accent-icon" /></div>
               <div className="stat-num">02:00 IST</div>
               <div className="stat-label">Autonomous Daily Daemon</div>
               <div className="stat-sub">TimescaleDB basket sweep pipeline</div>
             </div>
-            <div className="landing-stat-card">
+            <div className="landing-stat-card stat-accent-amber">
+              <div className="stat-icon-row"><TrendingUp size={14} className="stat-accent-icon" /></div>
               <div className="stat-num">r = 0.942</div>
               <div className="stat-label">DGCA Benchmark Correlation</div>
               <div className="stat-sub">18-month empirical backtest</div>
@@ -490,6 +495,12 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
                 <span>{slide.title}</span>
               </button>
             ))}
+          </div>
+
+          {/* Subtle Scroll Indicator */}
+          <div className="hero-scroll-indicator" aria-hidden="true">
+            <div className="scroll-indicator-line" />
+            <div className="scroll-indicator-label">SCROLL</div>
           </div>
         </div>
       </section>
@@ -566,7 +577,7 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
       </section>
 
       {/* ── Stakeholder Portals (Neermalya approach tailored for MoSPI problem statement) ── */}
-      <section className="landing-section" id="stakeholder-portals">
+      <section className="landing-section landing-section-dotgrid" id="stakeholder-portals">
         <div className="landing-container">
           <div className="section-head">
             <span className="section-kicker">GOVERNMENT DECISION-MAKERS</span>
@@ -623,24 +634,24 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
           </div>
 
           <div className="mandate-grid">
-            <div className="mandate-card">
-              <div className="mandate-icon"><Activity size={22} /></div>
+            <div className="mandate-card mandate-card-red">
+              <div className="mandate-icon mandate-icon-red"><Activity size={22} /></div>
               <h3>Algorithmic Dynamic Pricing</h3>
               <p>
                 Unlike traditional consumer goods with sticky prices, domestic airfares fluctuate by minute based on load factors, 
                 seat bucket exhaustion, and competitor repricing algorithms. Monthly survey sampling fails to capture true inflationary velocity.
               </p>
             </div>
-            <div className="mandate-card">
-              <div className="mandate-icon"><Clock size={22} /></div>
+            <div className="mandate-card mandate-card-navy">
+              <div className="mandate-icon mandate-icon-navy"><Clock size={22} /></div>
               <h3>Advance-Purchase Lead Stratification</h3>
               <p>
                 Fares on the same flight vary by up to 340% between spot booking (T+1) and planned advance booking (T+30). 
                 AiRA stratifies pricing across 5 systematic windows to avoid unweighted spot-fare distortion.
               </p>
             </div>
-            <div className="mandate-card">
-              <div className="mandate-icon"><Landmark size={22} /></div>
+            <div className="mandate-card mandate-card-gold">
+              <div className="mandate-icon mandate-icon-gold"><Landmark size={22} /></div>
               <h3>MoSPI &amp; RBI Policy Telemetry</h3>
               <p>
                 Provides the National Statistical Office (NSO) and the Reserve Bank of India with machine-consumable 
@@ -1034,8 +1045,9 @@ curl -X GET "https://aira.mospi.gov.in/api/apix/summary" \\
         <div className="landing-container">
           <div className="cta-card">
             <div className="cta-content">
-              <div className="cta-badge">
-                <span>PRODUCTION SYSTEM READY</span>
+              <div className="cta-badge cta-badge-institutional">
+                <Shield size={12} />
+                <span>PRODUCTION SYSTEM READY · MoSPI DIID</span>
               </div>
               <h2 className="cta-heading">Ready to inspect the live terminal or review price series?</h2>
               <p className="cta-description">

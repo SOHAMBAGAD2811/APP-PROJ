@@ -3532,5 +3532,191 @@ input[type="range"]::-webkit-slider-thumb:hover {
 @media (max-width: 480px) {
   .landing-stats-grid { grid-template-columns: 1fr; }
 }
+/* ── UI Polish Pass: Stat Card Icon Accents ── */
 
+.stat-icon-row {
+  margin-bottom: 8px;
+}
+
+.stat-accent-icon {
+  opacity: 0.6;
+}
+
+/* Top accent border per stat card variant */
+.landing-hero .landing-stat-card.stat-accent-gold {
+  border-top: 2px solid rgba(212, 175, 55, 0.65);
+}
+.landing-hero .landing-stat-card.stat-accent-gold .stat-accent-icon {
+  color: #fbbf24;
+  opacity: 1;
+}
+.landing-hero .landing-stat-card.stat-accent-gold .stat-num {
+  color: #fde68a;
+}
+
+.landing-hero .landing-stat-card.stat-accent-sky {
+  border-top: 2px solid rgba(125, 211, 252, 0.55);
+}
+.landing-hero .landing-stat-card.stat-accent-sky .stat-accent-icon {
+  color: #7dd3fc;
+  opacity: 1;
+}
+.landing-hero .landing-stat-card.stat-accent-sky .stat-num {
+  color: #bae6fd;
+}
+
+.landing-hero .landing-stat-card.stat-accent-slate {
+  border-top: 2px solid rgba(148, 163, 184, 0.45);
+}
+.landing-hero .landing-stat-card.stat-accent-slate .stat-accent-icon {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+.landing-hero .landing-stat-card.stat-accent-teal {
+  border-top: 2px solid rgba(20, 184, 166, 0.5);
+}
+.landing-hero .landing-stat-card.stat-accent-teal .stat-accent-icon {
+  color: #5eead4;
+  opacity: 1;
+}
+.landing-hero .landing-stat-card.stat-accent-teal .stat-num {
+  color: #99f6e4;
+}
+
+.landing-hero .landing-stat-card.stat-accent-amber {
+  border-top: 2px solid rgba(245, 158, 11, 0.55);
+}
+.landing-hero .landing-stat-card.stat-accent-amber .stat-accent-icon {
+  color: #fbbf24;
+  opacity: 1;
+}
+.landing-hero .landing-stat-card.stat-accent-amber .stat-num {
+  color: #fde68a;
+}
+
+/* ── Scroll Indicator below Hero ── */
+.hero-scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+  opacity: 0.38;
+  animation: scrollFade 2s ease-in-out infinite;
+}
+
+.scroll-indicator-line {
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8) 0%, transparent 100%);
+}
+
+.scroll-indicator-label {
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.14em;
+}
+
+@keyframes scrollFade {
+  0%, 100% { opacity: 0.38; transform: translateY(0); }
+  50% { opacity: 0.62; transform: translateY(4px); }
+}
+
+/* ── Mandate Card Distinct Color Variants ── */
+.mandate-card-red {
+  border-top: 3px solid #dc2626;
+}
+.mandate-icon-red {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.mandate-card-navy {
+  border-top: 3px solid #16435b;
+}
+.mandate-icon-navy {
+  background: var(--accent-light) !important;
+  color: #16435b !important;
+}
+
+.mandate-card-gold {
+  border-top: 3px solid #d4af37;
+}
+.mandate-icon-gold {
+  background: #fef9e7 !important;
+  color: #b7791f !important;
+}
+
+/* ── Section Kicker Underline Treatment ── */
+.section-kicker {
+  display: block !important;
+  position: relative;
+  padding-bottom: 8px;
+  margin-bottom: 10px !important;
+}
+
+.section-kicker::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 2px;
+  background: var(--accent-warm);
+  border-radius: 2px;
+}
+
+/* ── Dot-Grid Pattern Background for Portals Section ── */
+.landing-section-dotgrid {
+  background-image: radial-gradient(rgba(22, 67, 91, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-color: var(--bg-base);
+}
+
+/* ── Role Portal Button — More Prominent ── */
+.role-portal-btn {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 4px 14px rgba(22, 67, 91, 0.22) !important;
+}
+
+.role-portal-btn:hover {
+  background: var(--accent-2) !important;
+  border-color: var(--accent-2) !important;
+  box-shadow: 0 6px 20px rgba(22, 67, 91, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+/* ── CTA Badge — Institutional Steel-Blue Style ── */
+.cta-badge-institutional {
+  background: rgba(125, 211, 252, 0.15) !important;
+  color: #bae6fd !important;
+  border-color: rgba(125, 211, 252, 0.4) !important;
+}
+
+/* ── Footer Column Heading Enhancement ── */
+.footer-col h5,
+.footer-col-brand h5 {
+  font-size: 0.68rem !important;
+  font-family: var(--font-mono) !important;
+  font-weight: 700 !important;
+  color: #d4af37 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  margin-bottom: 16px !important;
+  padding-bottom: 8px !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25) !important;
+}
+
+/* ── Feature Comparison Section Header Accent ── */
+#feature-comparison .section-head h2::before {
+  content: '⟷ ';
+  font-size: 0.75em;
+  opacity: 0.4;
+}
 

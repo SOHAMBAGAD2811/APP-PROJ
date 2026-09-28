@@ -259,6 +259,18 @@ export default function App() {
             </button>
             <button
               className="app-nav-btn"
+              onClick={() => navigateTo('landing', '#feature-comparison')}
+            >
+              Comparison
+            </button>
+            <button
+              className="app-nav-btn"
+              onClick={() => navigateTo('landing', '#stakeholder-portals')}
+            >
+              Portals
+            </button>
+            <button
+              className="app-nav-btn"
               onClick={() => navigateTo('landing', '#compliance-matrix')}
             >
               MoSPI Audit
@@ -333,7 +345,7 @@ export default function App() {
       {/* ── View Router ── */}
       {view === 'landing' && (
         <LandingPage
-          onLaunchTerminal={() => navigateTo('terminal')}
+          onLaunchTerminal={(hash = '') => navigateTo('terminal', hash)}
           onGoToAuth={() => navigateTo('auth')}
         />
       )}
@@ -365,7 +377,7 @@ export default function App() {
               <div className="collection-copy">
                 <div className="collection-title-row">
                   <h2>Scheduled fare collection</h2>
-                  <span className="schedule-tag"><span className="live-dot" /> DAILY PLAN</span>
+                  <span className="schedule-tag">DAILY PLAN</span>
                 </div>
                 <p>Basket sweep plan · 6 domestic corridors · lead times T+1, T+7, T+15, T+30 and T+45</p>
                 <div className="collection-corridors">

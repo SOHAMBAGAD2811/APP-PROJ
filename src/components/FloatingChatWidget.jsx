@@ -50,38 +50,14 @@ export default function FloatingChatWidget({
             e.currentTarget.style.boxShadow = 'var(--shadow-md, 0 4px 6px -1px rgba(23, 55, 71, 0.06))';
           }}
         >
-          {/* Pulsing Green Indicator Beacon */}
-          <span
+          <Plane
+            size={16}
             style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '8px',
-              height: '8px',
+              color: 'var(--accent, #16435b)',
+              transform: 'rotate(-45deg)',
+              flexShrink: 0,
             }}
-          >
-            <span
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                background: 'var(--green, #2e7d52)',
-                opacity: 0.75,
-                animation: 'pulseBeacon 2s cubic-bezier(0, 0, 0.2, 1) infinite',
-              }}
-            />
-            <span
-              style={{
-                width: '7px',
-                height: '7px',
-                borderRadius: '50%',
-                background: 'var(--green, #2e7d52)',
-                boxShadow: '0 0 6px rgba(46, 125, 82, 0.5)',
-              }}
-            />
-          </span>
+          />
 
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
             <span
@@ -247,11 +223,6 @@ export default function FloatingChatWidget({
         @keyframes slideInPill {
           from { opacity: 0; transform: translateX(12px); }
           to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes pulseBeacon {
-          0% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(2.2); opacity: 0; }
-          100% { transform: scale(1); opacity: 0; }
         }
       `}</style>
     </>

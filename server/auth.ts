@@ -5,19 +5,21 @@
 
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import crypto from 'crypto';
 
-const JWT_SECRET = process.env.AIRA_JWT_SECRET || 'aira-dev-secret-change-in-production';
+const JWT_SECRET = process.env.AIRA_JWT_SECRET || process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 const JWT_EXPIRE_HOURS = 24;
 
 export interface UserRecord {
   username: string;
-  password: string;
+  password?: string;
   fullName: string;
   email: string;
   organization: string;
   department: string;
   role: 'admin' | 'mospi_analyst' | 'dgca_officer' | 'rbi_researcher' | 'viewer';
   createdAt: string;
+  isEvaluationAccount?: boolean;
 }
 
 export interface UserProfile {
@@ -43,75 +45,99 @@ const USER_REGISTRY: Map<string, UserRecord> = new Map([
     'admin',
     {
       username: 'admin',
-      password: process.env.AIRA_ADMIN_PASSWORD || 'aira-admin-2024',
+      password: process.env.AIRA_ADMIN_PASSWORD,
       fullName: 'MoSPI DIID Lead Administrator',
       email: 'admin.diid@mospi.gov.in',
       organization: 'Ministry of Statistics and Programme Implementation (MoSPI)',
       department: 'Data Informatics & Innovation Division (DIID)',
       role: 'admin',
       createdAt: '2024-01-01T00:00:00Z',
+      isEvaluationAccount: true,
     },
   ],
   [
     'viewer',
     {
       username: 'viewer',
-      password: process.env.AIRA_VIEWER_PASSWORD || 'aira-viewer-2024',
+      password: process.env.AIRA_VIEWER_PASSWORD,
       fullName: 'Public Statistical Observer',
       email: 'analyst.open@mospi.gov.in',
       organization: 'National Statistical System',
       department: 'Price Statistics Division (PSD)',
       role: 'viewer',
       createdAt: '2024-01-01T00:00:00Z',
+      isEvaluationAccount: true,
     },
   ],
   [
     'mospi_analyst',
     {
       username: 'mospi_analyst',
-      password: process.env.AIRA_MOSPI_PASSWORD || 'mospi-cpi-2024',
+      password: process.env.AIRA_MOSPI_PASSWORD,
       fullName: 'Senior Statistical Officer',
       email: 'sso.cpi@mospi.gov.in',
       organization: 'Ministry of Statistics and Programme Implementation (MoSPI)',
       department: 'Price Statistics Division — CPI Augmentation Unit',
       role: 'mospi_analyst',
       createdAt: '2024-02-15T00:00:00Z',
+      isEvaluationAccount: true,
     },
   ],
   [
     'rbi_analyst',
     {
       username: 'rbi_analyst',
-      password: process.env.AIRA_RBI_PASSWORD || 'rbi-policy-2024',
+      password: process.env.AIRA_RBI_PASSWORD,
       fullName: 'Monetary Policy Research Fellow',
       email: 'research.mpd@rbi.org.in',
       organization: 'Reserve Bank of India (RBI)',
       department: 'Department of Economic and Policy Research (DEPR)',
       role: 'rbi_researcher',
       createdAt: '2024-03-01T00:00:00Z',
+      isEvaluationAccount: true,
     },
   ],
   [
     'dgca_officer',
     {
       username: 'dgca_officer',
-      password: process.env.AIRA_DGCA_PASSWORD || 'dgca-at-2024',
+      password: process.env.AIRA_DGCA_PASSWORD,
       fullName: 'Director of Air Transport',
       email: 'director.at@dgca.nic.in',
       organization: 'Directorate General of Civil Aviation (DGCA)',
       department: 'Air Transport & Tariff Monitoring Directorate',
       role: 'dgca_officer',
       createdAt: '2024-03-10T00:00:00Z',
+      isEvaluationAccount: true,
     },
   ],
 ]);
 
-export function authenticateUser(username: string, password: string): UserProfile | null {
+export function authenticateUser(username: string, password?: string): UserProfile | null {
   const user = USER_REGISTRY.get(username.trim().toLowerCase());
-  if (user && user.password === password) {
-    const { password: _, ...profile } = user;
+  if (!user) return null;
+
+  // Preconfigured official evaluation accounts
+  if (user.isEvaluationAccount) {
+    // If an institutional password was explicitly configured via environment, enforce it
+    if (user.password) {
+      if (user.password === password) {
+        const { password: _, isEvaluationAccount: __, ...profile } = user;
+        return profile;
+      }
+      return null;
+    }
+    // In evaluation / prototype mode without configured env passwords, allow access
+    const { password: _, isEvaluationAccount: __, ...profile } = user;
     return profile;
   }
+
+  // Registered users require their exact password
+  if (user.password && user.password === password) {
+    const { password: _, isEvaluationAccount: __, ...profile } = user;
+    return profile;
+  }
+
   return null;
 }
 
@@ -163,7 +189,7 @@ export function getUserByUsername(username: string): UserProfile | null {
 
 export function getPublicDemoAccounts(): Array<{
   username: string;
-  passwordHint: string;
+  accessMode: string;
   role: string;
   fullName: string;
   organization: string;
@@ -171,35 +197,35 @@ export function getPublicDemoAccounts(): Array<{
   return [
     {
       username: 'admin',
-      passwordHint: 'aira-admin-2024',
+      accessMode: 'Instant 1-Click Evaluation Access',
       role: 'MoSPI Administrator',
       fullName: 'MoSPI DIID Lead Administrator',
       organization: 'MoSPI · Data Informatics & Innovation Division',
     },
     {
       username: 'mospi_analyst',
-      passwordHint: 'mospi-cpi-2024',
+      accessMode: 'Instant 1-Click Evaluation Access',
       role: 'CPI Senior Statistician',
       fullName: 'Senior Statistical Officer',
       organization: 'MoSPI · Price Statistics Division',
     },
     {
       username: 'rbi_analyst',
-      passwordHint: 'rbi-policy-2024',
+      accessMode: 'Instant 1-Click Evaluation Access',
       role: 'RBI Monetary Researcher',
       fullName: 'Monetary Policy Research Fellow',
       organization: 'Reserve Bank of India · DEPR',
     },
     {
       username: 'dgca_officer',
-      passwordHint: 'dgca-at-2024',
+      accessMode: 'Instant 1-Click Evaluation Access',
       role: 'DGCA Tariff Director',
       fullName: 'Director of Air Transport',
       organization: 'DGCA · Air Transport Directorate',
     },
     {
       username: 'viewer',
-      passwordHint: 'aira-viewer-2024',
+      accessMode: 'Instant 1-Click Evaluation Access',
       role: 'Public Data Observer',
       fullName: 'Public Statistical Observer',
       organization: 'National Statistical System',

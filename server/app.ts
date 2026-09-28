@@ -595,8 +595,13 @@ app.get('/api/export/bulletin', (req: Request, res: Response) => {
 // ── Auth Endpoints ──────────────────────────────────────────────────────────
 
 app.post(['/api/auth/token', '/api/auth/login'], (req: Request, res: Response) => {
-  const username = req.body?.username || (req.query?.username as string) || 'admin';
-  const password = req.body?.password || (req.query?.password as string) || 'aira-admin-2024';
+  const username = req.body?.username || (req.query?.username as string) || '';
+  const password = req.body?.password || (req.query?.password as string) || '';
+
+  if (!username) {
+    res.status(400).json({ detail: 'Username is required.' });
+    return;
+  }
 
   const user = authenticateUser(username, password);
   if (!user) {

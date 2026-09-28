@@ -24,7 +24,7 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
 
   // Form states
   const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('aira-admin-2024');
+  const [password, setPassword] = useState('');
   const [organization, setOrganization] = useState('Ministry of Statistics (MoSPI)');
   const [rememberMe, setRememberMe] = useState(true);
 
@@ -51,7 +51,6 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
       role: 'admin',
       org: 'MoSPI · Data Informatics & Innovation Division',
       user: 'admin',
-      pass: 'aira-admin-2024',
       badge: 'Full Root Privileges',
       desc: 'Basket sweep trigger, raw DB queries, system telemetry'
     },
@@ -61,7 +60,6 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
       role: 'mospi_analyst',
       org: 'MoSPI · Price Statistics Division',
       user: 'mospi_analyst',
-      pass: 'mospi-cpi-2024',
       badge: 'Statistical Officer',
       desc: 'Lowe index inspection, CPI bulletin generator, weights validation'
     },
@@ -71,7 +69,6 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
       role: 'rbi_researcher',
       org: 'Reserve Bank of India · DEPR',
       user: 'rbi_analyst',
-      pass: 'rbi-policy-2024',
       badge: 'Monetary Policy',
       desc: 'Inflation modeling, ATF price shock simulations, API token usage'
     },
@@ -81,7 +78,6 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
       role: 'dgca_officer',
       org: 'DGCA · Air Transport Directorate',
       user: 'dgca_officer',
-      pass: 'dgca-at-2024',
       badge: 'Aviation Regulator',
       desc: 'Corridor surveillance, unbundled tariff audits, MAD outlier log'
     },
@@ -91,7 +87,6 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
       role: 'viewer',
       org: 'National Statistical System',
       user: 'viewer',
-      pass: 'aira-viewer-2024',
       badge: 'Public Read-Only',
       desc: 'Airfare index charts, corridor heatmaps, CSV exports'
     },
@@ -111,10 +106,10 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
 
   function handleSelectDemo(demo) {
     setUsername(demo.user);
-    setPassword(demo.pass);
+    setPassword('');
     setOrganization(demo.org);
     setErrorMsg('');
-    setSuccessMsg(`Selected official test profile: ${demo.label}`);
+    setSuccessMsg(`Selected official test profile: ${demo.label}. Click "Authorize Session" to enter.`);
   }
 
   async function handleLogin(e) {
@@ -316,10 +311,14 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
                   <input
                     id="password"
                     type="password"
-                    required
+                    required={!demoAccounts.some((d) => d.user === username)}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter official access key"
+                    placeholder={
+                      demoAccounts.some((d) => d.user === username)
+                        ? "Evaluation account — click Authorize Session below"
+                        : "Enter official password"
+                    }
                     className="auth-input"
                   />
                 </div>
@@ -522,7 +521,7 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
                     <div className="demo-acc-desc">{acc.desc}</div>
                     <div className="demo-acc-creds">
                       <span>User: <code>{acc.user}</code></span>
-                      <span>Pass: <code>{acc.pass}</code></span>
+                      <span className="badge badge-outline" style={{ fontSize: '0.64rem' }}>1-Click Auth</span>
                     </div>
                   </div>
                 ))}

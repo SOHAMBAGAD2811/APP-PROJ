@@ -103,12 +103,6 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
       tag: 'Multi-Source Scraper'
     },
     {
-      feature: 'Extraction Automation & Cadence',
-      existing: 'Monthly survey sampling with 30–45 day publication delay; no automated cadence.',
-      aira: 'Autonomous daily scheduled daemon (02:00 IST) executing systematic sweeps into TimescaleDB hypertables without human intervention.',
-      tag: '02:00 IST Daemon'
-    },
-    {
       feature: 'Advance-Purchase Horizons (Yield Grid)',
       existing: 'Single unweighted spot quote (T+0/T+1), heavily distorted by last-minute business travel surge pricing.',
       aira: 'Stratified 5-point advance purchase matrix: T+1, T+7, T+15, T+30, and T+45 days capturing true dynamic yield curves.',
@@ -147,14 +141,8 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
     {
       feature: 'Empirical Benchmark Validation',
       existing: 'No historical backtesting or cross-validation against published aviation statistics.',
-      aira: 'Empirically back-tested against 18 months of published DGCA domestic average-fare benchmarks (r = 0.942, low RMSE, Theil’s U < 0.20).',
+      aira: 'Empirically back-tested against 18 months of published DGCA domestic average-fare benchmarks (r = 0.942, low RMSE, Theil's U < 0.20).',
       tag: 'DGCA Backtested'
-    },
-    {
-      feature: 'Spatial & Economic Visualization',
-      existing: 'Static tabular spreadsheets with no geographic context or elasticity insights.',
-      aira: 'Survey of India compliant interactive route heatmap, lead-time yield decay elasticity curves, and Day-over-Day corridor waterfall.',
-      tag: 'Route Heatmap & Curves'
     },
     {
       feature: 'Policy Simulation & Forecasting',
@@ -167,12 +155,6 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
       existing: 'Manual PDF bulletins requiring manual human transcription into macroeconomic models.',
       aira: 'Machine-consumable REST JSON endpoints (/api/apix/summary, /api/apix/series), Open Government Data CSV, and automated MoSPI bulletins.',
       tag: 'REST APIs & CSV'
-    },
-    {
-      feature: 'Automated Test Coverage',
-      existing: 'Zero automated unit or contract tests; mathematical index properties unverified.',
-      aira: '158-test automated pytest suite validating Lowe Index identities (I₀ = 100), log-MAD bounds, scrapers, and API contracts.',
-      tag: '158 Automated Tests'
     },
     {
       feature: 'Anti-Bot & Ethical Standards',

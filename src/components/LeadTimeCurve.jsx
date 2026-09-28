@@ -7,12 +7,12 @@ import { CalendarClock, TrendingUp } from 'lucide-react';
 
 // ── Corridor config ───────────────────────────────────────────────────────────
 const CORRIDORS = [
-  { key: 'DEL-BOM', name: 'Delhi – Mumbai',      color: '#6366f1' },
-  { key: 'DEL-BLR', name: 'Delhi – Bengaluru',   color: '#8b5cf6' },
+  { key: 'DEL-BOM', name: 'Delhi – Mumbai',      color: '#1a4d4a' },
+  { key: 'DEL-BLR', name: 'Delhi – Bengaluru',   color: '#2d9b8a' },
   { key: 'BOM-BLR', name: 'Mumbai – Bengaluru',  color: '#06b6d4' },
-  { key: 'DEL-CCU', name: 'Delhi – Kolkata',     color: '#10b981' },
-  { key: 'MAA-DEL', name: 'Chennai – Delhi',     color: '#f59e0b' },
-  { key: 'BLR-HYD', name: 'Bengaluru – Hyderabad', color: '#ef4444' },
+  { key: 'DEL-CCU', name: 'Delhi – Kolkata',     color: '#c9a52d' },
+  { key: 'MAA-DEL', name: 'Chennai – Delhi',     color: '#e05b52' },
+  { key: 'BLR-HYD', name: 'Bengaluru – Hyderabad', color: '#8b5cf6' },
 ];
 
 // Canonical lead bucket order

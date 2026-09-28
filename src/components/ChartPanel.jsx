@@ -15,51 +15,57 @@ const INR = n => n != null ? `₹${Number(n).toLocaleString('en-IN', { maximumFr
 const fmtT = dt => dt ? dt.slice(11, 16) : '—';
 const fmtD = m => m != null ? `${Math.floor(m / 60)}h ${m % 60}m` : '—';
 
-// ── Palette Tokens ─────────────────────────────────────────────────────────────
+// ── Palette Tokens (Neermalya Teal Theme) ──────────────────────────────────────
 const PALETTE = {
-  navy:    '#16435b',
+  teal:    '#1a4d4a',
+  teal2:   '#2d9b8a',
+  navy:    '#1a4d4a',
   blue:    '#2563eb',
-  emerald: '#10b981',
-  amber:   '#f59e0b',
-  red:     '#ef4444',
+  emerald: '#2d9b8a',
+  amber:   '#c9a52d',
+  red:     '#e05b52',
   purple:  '#8b5cf6',
   cyan:    '#06b6d4',
   muted:   '#94a3b8',
-  emt:     '#2563eb',
-  gf:      '#10b981',
+  emt:     '#1a4d4a',
+  gf:      '#2d9b8a',
 };
 
 const AIRLINE_COLORS = {
-  '6E': '#0052cc', // IndiGo Blue
+  '6E': '#1a4d4a', // IndiGo — teal
   'AI': '#b91c1c', // Air India Red
-  'QP': '#ea580c', // Akasa Orange
+  'QP': '#c9a52d', // Akasa Gold
   'SG': '#dc2626', // SpiceJet Red
   'IX': '#c2410c', // AI Express
   'UK': '#6b21a8', // Vistara Purple
-  'default': '#16435b',
+  'default': '#1a4d4a',
 };
 
-// ── Shared Custom Tooltip ──────────────────────────────────────────────────────
+// ── Shared Custom Tooltip (Neermalya style) ────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="glass-sm anim-fade-in" style={{
-      padding: '10px 14px',
+    <div style={{
+      padding: '12px 16px',
       fontSize: '0.82rem',
-      background: 'rgba(255, 255, 255, 0.98)',
-      boxShadow: '0 8px 24px rgba(22, 67, 91, 0.12)',
-      border: '1px solid var(--border)',
-      borderRadius: 'var(--r-md)',
-      minWidth: 160,
+      background: '#ffffff',
+      boxShadow: '0 8px 32px rgba(26,77,74,0.16)',
+      border: '1px solid #e2e8ea',
+      borderRadius: '10px',
+      minWidth: 164,
     }}>
-      {label && <div style={{ fontWeight: 700, marginBottom: 6, color: 'var(--text-primary)', borderBottom: '1px solid var(--border-light)', paddingBottom: 4 }}>{label}</div>}
+      {label && (
+        <div style={{ fontWeight: 700, marginBottom: 8, color: '#1a4d4a', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid #edf2f4', paddingBottom: 6 }}>
+          {label}
+        </div>
+      )}
       {payload.map((p, i) => (
-        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, margin: '3px 0' }}>
-          <span style={{ color: p.color || 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color || 'var(--accent)' }} />
-            {p.name}:
+        <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, margin: '4px 0' }}>
+          <span style={{ color: '#4d606a', display: 'flex', alignItems: 'center', gap: 7, fontSize: '0.8rem' }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color || '#1a4d4a', flexShrink: 0 }} />
+            {p.name}
           </span>
-          <strong style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
+          <strong style={{ fontFamily: 'var(--font-mono)', color: '#0f3535', fontSize: '0.82rem' }}>
             {typeof p.value === 'number' && p.value >= 100 ? INR(p.value) : p.value}
           </strong>
         </div>
@@ -130,38 +136,28 @@ function DepartureTimeFareChart({ fares, metricMode }) {
   const metricLabel = metricMode === 'avg' ? 'Average Fare' : metricMode === 'median' ? 'Median Fare' : 'Lowest Fare';
 
   return (
-    <ResponsiveContainer width="100%" height={290}>
-      <AreaChart data={data} margin={{ left: 8, right: 16, top: 12, bottom: 4 }}>
+    <ResponsiveContainer width="100%" height={280}>
+      <AreaChart data={data} margin={{ left: 4, right: 12, top: 16, bottom: 4 }}>
         <defs>
           <linearGradient id="timeFareGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor={PALETTE.navy} stopOpacity={0.25} />
-            <stop offset="95%" stopColor={PALETTE.navy} stopOpacity={0.01} />
+            <stop offset="5%" stopColor={PALETTE.teal} stopOpacity={0.18} />
+            <stop offset="95%" stopColor={PALETTE.teal} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(22, 67, 91, 0.08)" />
-        <XAxis dataKey="slot" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} />
-        <YAxis tickFormatter={v => `₹${(v / 1000).toFixed(0)}k`} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+        <CartesianGrid strokeDasharray="3 4" stroke="rgba(26,77,74,0.06)" vertical={false} />
+        <XAxis dataKey="slot" tick={{ fill: '#94a3b8', fontSize: 10 }} axisLine={false} tickLine={false} />
+        <YAxis tickFormatter={v => `₹${(v / 1000).toFixed(0)}k`} tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip />} />
-        <Legend wrapperStyle={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }} />
+        <Legend wrapperStyle={{ fontSize: '0.8rem', color: '#4d606a', paddingTop: 8 }} />
         <Area
           type="monotone"
           dataKey="fare"
           name={metricLabel}
-          stroke={PALETTE.navy}
+          stroke={PALETTE.teal}
           fill="url(#timeFareGrad)"
           strokeWidth={2.5}
-          dot={{ r: 4, fill: PALETTE.navy }}
-          activeDot={{ r: 6 }}
-        />
-        <Line
-          type="monotone"
-          dataKey="count"
-          name="Flights Available"
-          stroke={PALETTE.amber}
-          strokeWidth={1.5}
-          strokeDasharray="4 4"
-          dot={false}
-          yAxisId={0}
+          dot={{ r: 4, fill: '#fff', stroke: PALETTE.teal, strokeWidth: 2 }}
+          activeDot={{ r: 6, fill: PALETTE.teal }}
         />
       </AreaChart>
     </ResponsiveContainer>
@@ -211,15 +207,15 @@ function AirlinePriceSpreadChart({ fares }) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={290}>
-      <BarChart data={data} margin={{ left: 8, right: 16, top: 12, bottom: 4 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(22, 67, 91, 0.08)" />
-        <XAxis dataKey="airline" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
-        <YAxis tickFormatter={v => `₹${(v / 1000).toFixed(0)}k`} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} />
+    <ResponsiveContainer width="100%" height={280}>
+      <BarChart data={data} margin={{ left: 4, right: 12, top: 16, bottom: 4 }}>
+        <CartesianGrid strokeDasharray="3 4" stroke="rgba(26,77,74,0.06)" vertical={false} />
+        <XAxis dataKey="airline" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
+        <YAxis tickFormatter={v => `₹${(v / 1000).toFixed(0)}k`} tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
         <Tooltip content={<CustomTooltip />} />
-        <Legend wrapperStyle={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }} />
+        <Legend wrapperStyle={{ fontSize: '0.8rem', color: '#4d606a', paddingTop: 8 }} />
         <Bar dataKey="min" name="Starting Fare (Min)" fill={PALETTE.emerald} radius={[4, 4, 0, 0]} />
-        <Bar dataKey="avg" name="Average Fare" fill={PALETTE.navy} radius={[4, 4, 0, 0]} />
+        <Bar dataKey="avg" name="Average Fare" fill={PALETTE.teal} radius={[4, 4, 0, 0]} />
         <Bar dataKey="max" name="Peak Surge Fare" fill={PALETTE.amber} radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

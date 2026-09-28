@@ -97,71 +97,41 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
   // Standout Feature Comparison: Traditional CPI Survey vs AiRA (Neermalya signature pattern)
   const comparisonData = [
     {
-      feature: 'Data Sourcing & Portals',
-      existing: 'Manual quarterly field visits or static aggregator CSV lookups, prone to human error and collection lag.',
-      aira: 'Automated real-time multi-source Playwright scraping targeting direct carriers (IndiGo, Air India) and leading aggregators (EaseMyTrip, Cleartrip, Google Flights).',
-      tag: 'Multi-Source Scraper'
+      feature: 'Data Collection',
+      existing: 'Manual quarterly field visits or static aggregator CSV lookups with 30–45 day publication lag.',
+      aira: 'Automated Playwright scraper running daily across IndiGo, Air India, EaseMyTrip, Cleartrip, and Google Flights.',
+      tag: 'Scraping'
     },
     {
-      feature: 'Advance-Purchase Horizons (Yield Grid)',
-      existing: 'Single unweighted spot quote (T+0/T+1), heavily distorted by last-minute business travel surge pricing.',
-      aira: 'Stratified 5-point advance purchase matrix: T+1, T+7, T+15, T+30, and T+45 days capturing true dynamic yield curves.',
-      tag: 'T+1...T+45 Grid'
+      feature: 'Advance-Purchase Horizons',
+      existing: 'Single unweighted spot quote (T+0), heavily skewed by last-minute business travel pricing.',
+      aira: 'Five-point advance-purchase matrix: T+1, T+7, T+15, T+30, and T+45 — capturing the full yield curve.',
+      tag: 'Yield Grid'
     },
     {
-      feature: 'Corridor Basket & Weighting',
-      existing: 'Unweighted arithmetic average across arbitrary routes with no passenger volume context.',
-      aira: 'Top 6 national high-density corridors covering ~60% domestic passenger volume, weighted by official DGCA FY 2024–25 traffic shares.',
-      tag: 'DGCA Traffic Weights'
+      feature: 'Corridor Weighting',
+      existing: 'Unweighted arithmetic average with no passenger volume context.',
+      aira: 'Top 6 corridors covering ~60% of domestic traffic, weighted by official DGCA FY 2024–25 passenger shares.',
+      tag: 'DGCA Weights'
     },
     {
-      feature: 'Outlier Detection & Data Hygiene',
-      existing: 'Crude Gaussian 3-sigma rules that erroneously delete legitimate holiday/festival price surges and inflate variance.',
-      aira: 'Logarithmic Median Absolute Deviation (Log-MAD, k=3.0) specifically tuned for right-skewed dynamic airline pricing.',
-      tag: 'Log-MAD Filter'
+      feature: 'Price Index Method',
+      existing: 'Simple unweighted ratios with no base period normalization or formal statistical formulation.',
+      aira: 'MoSPI Price Statistics Division Lowe Price Index: Iₜ = 100 × [∑ wᵢ(Pᵢₜ/Pᵢ₀) / ∑ wᵢ] with base period 2024-Q1.',
+      tag: 'Lowe Formula'
     },
     {
-      feature: 'Missing Data & Sold-Out Handling',
-      existing: 'Missing routes or sold-out flights simply omitted, creating artificial downward index bias.',
-      aira: 'Statistical Last Observation Carried Forward (LOCF) & corridor-group mean imputation with explicit sold-out status tracking.',
-      tag: 'Imputation & Flags'
-    },
-    {
-      feature: 'Fare Component Unbundling',
-      existing: 'Lump-sum gross ticket price conflates carrier fare strategies with statutory tax hikes and airport tariff changes.',
-      aira: 'Relational SQL unbundling: Base Fare (airline revenue), UDF/PSF (airport tariffs), GST (indirect tax), and platform convenience fees.',
-      tag: 'Relational Unbundling'
-    },
-    {
-      feature: 'Index Mathematical Rigor',
-      existing: 'Simple unweighted average ratios subject to index drift and lacking formal base period normalization.',
-      aira: 'Official MoSPI Price Statistics Division (PSD) Lowe Price Index formula: It = 100 * [∑ wi (Pit/Pi0) / ∑ wi] with base period normalization.',
-      tag: 'Lowe Price Index'
-    },
-    {
-      feature: 'Empirical Benchmark Validation',
-      existing: 'No historical backtesting or cross-validation against published aviation statistics.',
-      aira: "Empirically back-tested against 18 months of published DGCA domestic average-fare benchmarks (r = 0.942, low RMSE, Theil\u2019s U < 0.20).",
+      feature: 'Empirical Validation',
+      existing: 'No historical backtesting against published aviation data.',
+      aira: 'Back-tested against 18 months of DGCA domestic average-fare data. Pearson r = 0.942, Theil\u2019s U < 0.20.',
       tag: 'DGCA Backtested'
     },
     {
-      feature: 'Policy Simulation & Forecasting',
-      existing: 'Retroactive descriptive reporting with no forward-looking scenario modeling.',
-      aira: 'Interactive What-If Simulation Engine: Aviation Turbine Fuel (ATF) price shocks and passenger demand elasticity adjustments.',
-      tag: 'What-If Simulator'
+      feature: 'Institutional Output',
+      existing: 'Manual PDF bulletins requiring human transcription before use in macroeconomic models.',
+      aira: 'REST JSON endpoints (/api/apix/summary, /api/apix/series), OGD-compliant CSV export, and auto-generated MoSPI bulletins.',
+      tag: 'APIs & Feeds'
     },
-    {
-      feature: 'Institutional Integration (NSO & RBI)',
-      existing: 'Manual PDF bulletins requiring manual human transcription into macroeconomic models.',
-      aira: 'Machine-consumable REST JSON endpoints (/api/apix/summary, /api/apix/series), Open Government Data CSV, and automated MoSPI bulletins.',
-      tag: 'REST APIs & CSV'
-    },
-    {
-      feature: 'Anti-Bot & Ethical Standards',
-      existing: 'Ad-hoc scraping risking IP blocks, blacklisting, and legal compliance issues.',
-      aira: 'Headless Playwright with resource blocking, polite backoff, and strict RFC 9309 robots.txt compliance checker module.',
-      tag: 'RFC 9309 Compliant'
-    }
   ];
 
   // Stakeholder / Role-Based Portals (Neermalya approach tailored for MoSPI problem statement)
@@ -321,19 +291,19 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
 
   return (
     <div className="landing-page-root anim-fade-in">
-      {/* ── Official Institutional Top Ribbon (GovHeader style) ── */}
+      {/* ── Official Institutional Top Ribbon ── */}
       <div className="landing-gov-ribbon">
         <div className="landing-gov-content">
           <div className="landing-gov-badge">
             <div className="gov-emblem-gold" style={{ width: 28, height: 28, boxShadow: 'none' }}>
               <Landmark size={14} />
             </div>
-            <span>MINISTRY OF STATISTICS AND PROGRAMME IMPLEMENTATION (MoSPI) · GOVERNMENT OF INDIA</span>
+            <span>Ministry of Statistics and Programme Implementation (MoSPI) · Government of India</span>
           </div>
           <div className="landing-gov-meta">
-            <span>Problem Statement Compliance Score: <strong>100%</strong></span>
+            <span>DIID · Data Informatics &amp; Innovation Division</span>
             <span className="ribbon-sep">|</span>
-            <span>Target: <strong>CPI Augmentation via APIx</strong></span>
+            <span>CPI Transport Sub-Index Augmentation</span>
           </div>
         </div>
       </div>
@@ -356,23 +326,23 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
         <div className="landing-hero-inner">
           {/* Kicker */}
           <div className="landing-hero-kicker">
-            <span className="badge badge-accent">MoSPI · DIID PROBLEM STATEMENT</span>
-            <span className="kicker-tag">Aviation Transport Price Statistics · Government of India</span>
+            <span className="badge badge-accent">DIID · AiRA SYSTEM</span>
+            <span className="kicker-tag">Domestic Airfare Price Statistics for India</span>
           </div>
 
           <h1 className="landing-hero-title">
-            Real-Time Airfare<br />Price Index <span className="title-accent">(APIx)</span> for India
+            India Airfare Price Index<br /><span className="title-accent">(APIx)</span>
           </h1>
 
           <p className="landing-hero-subtitle">
-            Autonomous daily scraping of airline and OTA portals, DGCA-weighted Lowe price index construction,
-            and machine-consumable APIs built for MoSPI and the Reserve Bank of India.
+            Tracks daily fare movements across 6 DGCA-weighted domestic corridors using the Lowe price index formula —
+            built to augment the transport component of India's Consumer Price Index for the National Statistical Office.
           </p>
 
           <div className="landing-hero-actions">
             <button className="btn btn-primary btn-lg" onClick={() => onLaunchTerminal?.()}>
               <Terminal size={18} />
-              Launch Intelligence Terminal
+              Open Live Terminal
               <ArrowRight size={16} />
             </button>
             <button className="btn btn-ghost btn-lg" onClick={onGoToAuth}>
@@ -383,29 +353,29 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
 
           {/* 4 Key Stats */}
           <div className="landing-stats-grid">
-            <div className="landing-stat-card stat-accent-gold">
-              <div className="stat-icon-row"><CheckCircle2 size={14} className="stat-accent-icon" /></div>
-              <div className="stat-num">100%</div>
-              <div className="stat-label">MoSPI Compliance Score</div>
-              <div className="stat-sub">All 12 DIID criteria fulfilled</div>
-            </div>
             <div className="landing-stat-card stat-accent-sky">
               <div className="stat-icon-row"><Plane size={14} className="stat-accent-icon" /></div>
               <div className="stat-num">6 Corridors</div>
-              <div className="stat-label">DGCA High-Density Basket</div>
-              <div className="stat-sub">~60% national domestic traffic</div>
-            </div>
-            <div className="landing-stat-card stat-accent-teal">
-              <div className="stat-icon-row"><RefreshCw size={14} className="stat-accent-icon" /></div>
-              <div className="stat-num">Daily 02:00 IST</div>
-              <div className="stat-label">Autonomous Scraper Daemon</div>
-              <div className="stat-sub">TimescaleDB basket sweep pipeline</div>
+              <div className="stat-label">DGCA Passenger-Weighted</div>
+              <div className="stat-sub">DEL-BOM, DEL-BLR, BOM-BLR + 3 more</div>
             </div>
             <div className="landing-stat-card stat-accent-amber">
               <div className="stat-icon-row"><TrendingUp size={14} className="stat-accent-icon" /></div>
               <div className="stat-num">r = 0.942</div>
-              <div className="stat-label">DGCA Benchmark Correlation</div>
-              <div className="stat-sub">18-month empirical backtest</div>
+              <div className="stat-label">Correlation vs DGCA data</div>
+              <div className="stat-sub">18-month historical backtest</div>
+            </div>
+            <div className="landing-stat-card stat-accent-teal">
+              <div className="stat-icon-row"><RefreshCw size={14} className="stat-accent-icon" /></div>
+              <div className="stat-num">Daily</div>
+              <div className="stat-label">Index Updated at 02:00 IST</div>
+              <div className="stat-sub">Automated scraper pipeline</div>
+            </div>
+            <div className="landing-stat-card stat-accent-gold">
+              <div className="stat-icon-row"><BarChart3 size={14} className="stat-accent-icon" /></div>
+              <div className="stat-num">5 Windows</div>
+              <div className="stat-label">Advance-Purchase Grid</div>
+              <div className="stat-sub">T+1, T+7, T+15, T+30, T+45</div>
             </div>
           </div>
 

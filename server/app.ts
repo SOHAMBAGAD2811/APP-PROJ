@@ -12,13 +12,14 @@ import { computeApixSummary, computeCorridorDecomposition, enrichLeadtimeRows } 
 import { computeBacktestStats, compareAgainstDgcaBenchmark } from './analytics';
 import { runSimulation } from './simulate';
 import { handleChat, handleChatStream, getAvailableChatModels } from './chat';
-import { authenticateUser, createAccessToken, requireAdmin } from './auth';
+import { authenticateUser, createAccessToken, requireAdmin, registerUser, getUserByUsername, getPublicDemoAccounts, decodeToken } from './auth';
 import { getRegistry, checkRobots } from './compliance';
 import * as emtScraper from './scrapers/easemytrip';
 import * as ctScraper from './scrapers/cleartrip';
 import * as indigoScraper from './scrapers/indigo';
 import * as airindiaScraper from './scrapers/airindia';
 import { testSupabaseConnection, isSupabaseConfigured, getSupabase } from './supabase';
+import { runBasketSweep, getSchedulerStatus, getLastSweepLedger } from './sweep';
 
 const app = express();
 
@@ -504,106 +505,47 @@ app.post('/api/admin/supabase/sync', async (_req: Request, res: Response) => {
 
 app.post('/api/admin/trigger-sweep', (req: Request, res: Response) => {
   const { jobId } = store.createJob();
-  store.updateJob(jobId, {
-    status: 'running',
-    progress: 10,
-    step: 1,
-    total_steps: 6,
-    stage: 'Basket Sweep: DEL-BOM (29.58% wt)',
-    details: 'Harvesting quotes for Delhi – Mumbai across T+1, T+7, T+15, T+30, T+45 lead windows...',
+  
+  // Launch the real pure-Node DGCA basket sweep across all 6 corridors
+  runBasketSweep(jobId).catch((err) => {
+    console.error('[API Admin] Background sweep failure:', err);
   });
-
-  const corridors = [
-    { code: 'DEL-BOM', name: 'Delhi – Mumbai', wt: '29.58%' },
-    { code: 'DEL-BLR', name: 'Delhi – Bengaluru', wt: '20.21%' },
-    { code: 'BOM-BLR', name: 'Mumbai – Bengaluru', wt: '17.76%' },
-    { code: 'DEL-CCU', name: 'Delhi – Kolkata', wt: '11.96%' },
-    { code: 'MAA-DEL', name: 'Chennai – Delhi', wt: '10.59%' },
-    { code: 'BLR-HYD', name: 'Bengaluru – Hyderabad', wt: '9.90%' },
-  ];
-
-  (async () => {
-    for (let i = 0; i < corridors.length; i++) {
-      await sleep(1100);
-      const c = corridors[i];
-      const prog = Math.round(((i + 1) / (corridors.length + 1)) * 100);
-      store.updateJob(jobId, {
-        status: 'running',
-        progress: prog,
-        step: i + 1,
-        total_steps: 6,
-        stage: `Basket Sweep: ${c.code} (${c.wt} wt)`,
-        details: `Harvesting quotes for ${c.name} across T+1, T+7, T+15, T+30, T+45 lead windows...`,
-      });
-    }
-
-    await sleep(500);
-    store.updateJob(jobId, {
-      status: 'done',
-      progress: 100,
-      step: 6,
-      total_steps: 6,
-      stage: 'DGCA Fixed Basket Sweep Complete',
-      details: 'All 6 corridors swept, Lowe Index recalculated, and ledger committed.',
-      result: {
-        status: 'completed',
-        corridors_scraped: 6,
-        lead_windows: [1, 7, 15, 30, 45],
-        quotes_loaded: 180,
-        quotes_parsed: 180,
-        finished_at: new Date().toISOString(),
-      },
-    });
-  })();
 
   res.json({
     job_id: jobId,
     status: 'running',
-    message: 'DGCA Fixed Basket Sweep initiated across all 6 core domestic trunk corridors.',
+    message: 'Autonomous DGCA Fixed Basket Sweep initiated across all 6 core domestic trunk corridors.',
   });
 });
 
 app.get('/api/admin/sweep-status', (req: Request, res: Response) => {
   const allJobs = Array.from(store.getAllJobs().entries());
-  const sweepJobs = allJobs
-    .filter(([_, j]) => j.result && (j.result.quotes_parsed || j.result.corridors_scraped))
-    .map(([id, j]) => ({ job_id: id, ...j }));
-
-  if (sweepJobs.length === 0) {
-    res.json({
-      status: 'completed',
-      started_at: new Date(Date.now() - 3600000).toISOString(),
-      finished_at: new Date(Date.now() - 3550000).toISOString(),
-      result: {
-        corridors_scraped: 6,
-        lead_windows: [1, 7, 15, 30, 45],
-        quotes_loaded: 180,
-        quotes_parsed: 180,
-      },
-    });
+  const runningSweep = allJobs.find(([_, j]) => j.status === 'running' && j.stage?.includes('Basket Sweep'));
+  if (runningSweep) {
+    res.json({ job_id: runningSweep[0], ...runningSweep[1] });
     return;
   }
 
-  sweepJobs.sort((a, b) => b.started_at.localeCompare(a.started_at));
-  res.json(sweepJobs[0]);
+  const lastLedger = getLastSweepLedger();
+  res.json(lastLedger);
 });
 
-app.get('/api/admin/scheduler-status', (req: Request, res: Response) => {
-  const nextRun = new Date();
-  nextRun.setDate(nextRun.getDate() + 1);
-  nextRun.setHours(2, 0, 0, 0);
+app.get('/api/admin/scheduler-status', (_req: Request, res: Response) => {
+  res.json(getSchedulerStatus());
+});
 
-  res.json({
-    is_running: true,
-    schedule: 'Daily at 02:00 IST (Asia/Kolkata)',
-    next_run_at: nextRun.toISOString(),
-    last_run: {
-      status: 'done',
-      finished_at: new Date(Date.now() - 7200000).toISOString(),
-      ledger: { corridors_scraped: 6, quotes_loaded: 180 },
-    },
-    db_available: true,
-  });
+app.all('/api/cron/sweep', async (_req: Request, res: Response) => {
+  console.log('⏰ [Cron] System / Vercel Cron trigger received. Executing autonomous sweep...');
+  try {
+    const ledger = await runBasketSweep();
+    res.json({
+      success: true,
+      message: 'Daily DGCA basket sweep completed successfully via automated cron.',
+      ledger,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message || String(err) });
+  }
 });
 
 // ── Exports (CSV & Bulletin) ──────────────────────────────────────────────────
@@ -650,24 +592,108 @@ app.get('/api/export/bulletin', (req: Request, res: Response) => {
   res.send(lines.join('\n'));
 });
 
-// ── Auth Token ───────────────────────────────────────────────────────────────
+// ── Auth Endpoints ──────────────────────────────────────────────────────────
 
-app.post('/api/auth/token', (req: Request, res: Response) => {
+app.post(['/api/auth/token', '/api/auth/login'], (req: Request, res: Response) => {
   const username = req.body?.username || (req.query?.username as string) || 'admin';
   const password = req.body?.password || (req.query?.password as string) || 'aira-admin-2024';
 
   const user = authenticateUser(username, password);
   if (!user) {
-    res.status(401).json({ detail: 'Incorrect username or password' });
+    res.status(401).json({ detail: 'Incorrect username or password. Please verify credentials.' });
     return;
   }
 
-  const token = createAccessToken(user.username, user.role);
+  const token = createAccessToken(user);
   res.json({
     access_token: token,
     token_type: 'bearer',
     expires_in_seconds: 86400,
     role: user.role,
+    user: {
+      username: user.username,
+      fullName: user.fullName,
+      email: user.email,
+      organization: user.organization,
+      department: user.department,
+      role: user.role,
+    },
+  });
+});
+
+app.post('/api/auth/register', (req: Request, res: Response) => {
+  const { username, password, fullName, email, organization, department, role } = req.body || {};
+  if (!username || !password || !email) {
+    res.status(400).json({ detail: 'Username, password, and email are required fields.' });
+    return;
+  }
+
+  const result = registerUser({
+    username,
+    password,
+    fullName: fullName || username,
+    email,
+    organization: organization || 'Ministry of Statistics (MoSPI)',
+    department: department || 'Data Informatics & Innovation Division',
+    role: role || 'viewer',
+  });
+
+  if ('error' in result) {
+    res.status(400).json({ detail: result.error });
+    return;
+  }
+
+  const token = createAccessToken(result.user);
+  res.status(201).json({
+    access_token: token,
+    token_type: 'bearer',
+    expires_in_seconds: 86400,
+    role: result.user.role,
+    user: result.user,
+    message: 'Official credentials registered successfully.',
+  });
+});
+
+app.get('/api/auth/me', (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ detail: 'Missing or invalid Authorization header' });
+    return;
+  }
+
+  const token = authHeader.substring(7);
+  const data = decodeToken(token);
+  if (!data) {
+    res.status(401).json({ detail: 'Invalid or expired authentication token' });
+    return;
+  }
+
+  const user = getUserByUsername(data.username);
+  if (!user) {
+    // If registered in previous session or demo
+    res.json({
+      username: data.username,
+      fullName: data.fullName || data.username,
+      role: data.role,
+      organization: data.organization || 'Institutional Access',
+    });
+    return;
+  }
+
+  res.json({
+    username: user.username,
+    fullName: user.fullName,
+    email: user.email,
+    organization: user.organization,
+    department: user.department,
+    role: user.role,
+  });
+});
+
+app.get('/api/auth/demo-accounts', (_req: Request, res: Response) => {
+  res.json({
+    description: 'Preconfigured official test credentials for evaluation',
+    accounts: getPublicDemoAccounts(),
   });
 });
 

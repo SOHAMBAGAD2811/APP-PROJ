@@ -64,7 +64,7 @@ export async function scrapeFareCalendar(
         method: 'POST',
         headers,
         body: JSON.stringify({ CalKey_: calKey }),
-        signal: AbortSignal.timeout(1200),
+        signal: AbortSignal.timeout(6000),
       });
 
       if (res.ok) {

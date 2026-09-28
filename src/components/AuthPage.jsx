@@ -23,9 +23,9 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
   const [currentUser, setCurrentUser] = useState(initialUser || null);
 
   // Form states
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [organization, setOrganization] = useState('Ministry of Statistics (MoSPI)');
+  const [selectedAgency, setSelectedAgency] = useState('mospi');
   const [rememberMe, setRememberMe] = useState(true);
 
   // Register form states
@@ -110,28 +110,12 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
   }, []);
 
   function handleSelectDemo(demo) {
+    setSelectedAgency(demo.agency);
     setUsername(demo.user);
-    setPassword('demo123');
-    setOrganization(demo.org);
+    setPassword('');
     setErrorMsg('');
-    setSuccessMsg(`Selected official test profile: ${demo.label}. Authenticating…`);
-    
-    // Automatically log in with selected demo account
-    const userObj = {
-      username: demo.user,
-      fullName: demo.label,
-      organization: demo.org,
-      department: demo.badge,
-      role: demo.role,
-      agency: demo.agency,
-    };
-    localStorage.setItem('aira_token', 'jwt_' + btoa(demo.user + ':' + Date.now()));
-    localStorage.setItem('aira_user', JSON.stringify(userObj));
-    setCurrentUser(userObj);
-
-    setTimeout(() => {
-      if (onAuthSuccess) onAuthSuccess(userObj);
-    }, 400);
+    setSuccessMsg(`Selected official workspace: ${demo.label}. Click "Authenticate & Enter Terminal" below.`);
+    // User can click submit when ready - no forced immediate auto-login
   }
 
   async function handleLogin(e) {
@@ -335,26 +319,39 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
             {/* Login Form */}
             {mode === 'login' ? (
               <form onSubmit={handleLogin} className="auth-form">
-                {/* 1-Click Agency Dashboard Selector */}
-                <div style={{ marginBottom: '14px' }}>
+                {/* Clean Agency Selection Chips with Lucide Icons */}
+                <div style={{ marginBottom: '18px' }}>
                   <label style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '8px' }}>
-                    Quick Select Agency Workspace:
+                    Select Target Agency Workspace:
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
-                    {demoAccounts.filter(d => d.id !== 'admin').map(acc => (
-                      <button
-                        key={acc.id}
-                        type="button"
-                        onClick={() => handleSelectDemo(acc)}
-                        className={`btn btn-sm ${organization.includes(acc.label.split(' ')[0]) ? 'btn-primary' : 'btn-ghost'}`}
-                        style={{ padding: '8px 6px', fontSize: '0.72rem', fontWeight: 700, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', textAlign: 'center', borderRadius: '8px' }}
-                      >
-                        <span style={{ fontSize: '1.05rem' }}>
-                          {acc.id === 'mospi' ? '🏛️' : acc.id === 'rbi' ? '📈' : acc.id === 'dgca' ? '✈️' : '📊'}
-                        </span>
-                        <span>{acc.id.toUpperCase()}</span>
-                      </button>
-                    ))}
+                    {demoAccounts.filter(d => d.id !== 'admin').map(acc => {
+                      const isSelected = selectedAgency === acc.agency;
+                      const IconComp = acc.id === 'mospi' ? Landmark : acc.id === 'rbi' ? TrendingUp : acc.id === 'dgca' ? Plane : Database;
+                      return (
+                        <button
+                          key={acc.id}
+                          type="button"
+                          onClick={() => handleSelectDemo(acc)}
+                          className={`btn btn-sm ${isSelected ? 'btn-primary' : 'btn-ghost'}`}
+                          style={{
+                            padding: '10px 8px',
+                            fontSize: '0.74rem',
+                            fontWeight: 700,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: '6px',
+                            textAlign: 'center',
+                            borderRadius: '8px',
+                            borderColor: isSelected ? 'var(--accent)' : 'var(--border)'
+                          }}
+                        >
+                          <IconComp size={16} />
+                          <span>{acc.id.toUpperCase()}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -367,7 +364,7 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Enter any username (e.g. officer, rbi_analyst, dgca_lead, nso_user)"
+                    placeholder="Enter any username (or leave blank to use selected agency)"
                     className="auth-input"
                   />
                 </div>
@@ -384,24 +381,6 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
                     placeholder="Any password or leave blank for instant login"
                     className="auth-input"
                   />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="org">
-                    <Building2 size={14} /> Department / Institution
-                  </label>
-                  <select
-                    id="org"
-                    value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
-                    className="auth-select"
-                  >
-                    <option value="Ministry of Statistics (MoSPI)">Ministry of Statistics and Programme Implementation (MoSPI)</option>
-                    <option value="Directorate General of Civil Aviation (DGCA)">Directorate General of Civil Aviation (DGCA)</option>
-                    <option value="Reserve Bank of India (RBI)">Reserve Bank of India (RBI)</option>
-                    <option value="National Statistical Office (NSO)">National Statistical Office (NSO)</option>
-                    <option value="Academic & Policy Research">Accredited Academic / Policy Research Institute</option>
-                  </select>
                 </div>
 
                 <div className="form-row-check">

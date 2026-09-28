@@ -142,15 +142,18 @@ export default function AgencyDashboard({
           ──────────────────────────────────────────────────────────── */}
       {(activeAgency === 'mospi' || activeAgency === 'all') && (
         <section className="agency-section agency-mospi anim-slide">
-          <div className="agency-banner banner-mospi">
-            <div className="banner-left">
-              <div className="agency-crest"><Landmark size={24} /></div>
+          <div className="agency-header-card agency-header-mospi">
+            <div className="agency-header-left">
+              <div className="agency-header-icon"><Landmark size={20} /></div>
               <div>
-                <h2>Ministry of Statistics and Programme Implementation (MoSPI)</h2>
-                <p>Price Statistics Division (PSD) · Consumer Price Index (CPI) Transport Basket Augmentation</p>
+                <div className="agency-header-kicker">MINISTRY OF STATISTICS AND PROGRAMME IMPLEMENTATION</div>
+                <h2 className="agency-header-title">Price Statistics Division (PSD) · National Accounts</h2>
+                <p className="agency-header-desc">
+                  Official Lowe price index calculations (Base 2024-Q1 = 100), representative corridor basket weights, and monthly statistical bulletin releases.
+                </p>
               </div>
             </div>
-            <div className="banner-actions">
+            <div className="agency-header-actions">
               <button
                 className="btn btn-primary btn-sm"
                 onClick={() => setBulletinModalOpen(true)}
@@ -239,15 +242,18 @@ export default function AgencyDashboard({
           ──────────────────────────────────────────────────────────── */}
       {(activeAgency === 'rbi' || activeAgency === 'all') && (
         <section className="agency-section agency-rbi anim-slide">
-          <div className="agency-banner banner-rbi">
-            <div className="banner-left">
-              <div className="agency-crest"><TrendingUp size={24} /></div>
+          <div className="agency-header-card agency-header-rbi">
+            <div className="agency-header-left">
+              <div className="agency-header-icon"><TrendingUp size={20} /></div>
               <div>
-                <h2>Reserve Bank of India (RBI)</h2>
-                <p>Monetary Policy Department (MPD) &amp; Department of Economic and Policy Research (DEPR)</p>
+                <div className="agency-header-kicker">RESERVE BANK OF INDIA</div>
+                <h2 className="agency-header-title">Monetary Policy Department · Economic Research</h2>
+                <p className="agency-header-desc">
+                  High-frequency airfare price momentum, advance-purchase yield curve elasticity, and forward-looking ATF fuel shock simulations.
+                </p>
               </div>
             </div>
-            <div className="banner-actions">
+            <div className="agency-header-actions">
               <a href="/api/apix/summary" target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">
                 <ExternalLink size={14} /> Econometric JSON Stream
               </a>
@@ -298,15 +304,18 @@ export default function AgencyDashboard({
           ──────────────────────────────────────────────────────────── */}
       {(activeAgency === 'dgca' || activeAgency === 'all') && (
         <section className="agency-section agency-dgca anim-slide">
-          <div className="agency-banner banner-dgca">
-            <div className="banner-left">
-              <div className="agency-crest"><Plane size={24} /></div>
+          <div className="agency-header-card agency-header-dgca">
+            <div className="agency-header-left">
+              <div className="agency-header-icon"><Plane size={20} /></div>
               <div>
-                <h2>Directorate General of Civil Aviation (DGCA)</h2>
-                <p>Air Transport Directorate · Airline Tariff Monitoring Cell &amp; Passenger Fare Protection</p>
+                <div className="agency-header-kicker">DIRECTORATE GENERAL OF CIVIL AVIATION</div>
+                <h2 className="agency-header-title">Air Transport Directorate · Tariff Monitoring Cell</h2>
+                <p className="agency-header-desc">
+                  Airline corridor fare surveillance, fare component unbundling (Base vs UDF vs GST vs fees), and predatory surge pricing alerts.
+                </p>
               </div>
             </div>
-            <div className="banner-actions">
+            <div className="agency-header-actions">
               <button className="btn btn-ghost btn-sm" onClick={onOpenManualSearch}>
                 <Search size={14} /> Audit Specific Carrier Sector
               </button>
@@ -414,15 +423,18 @@ export default function AgencyDashboard({
           ──────────────────────────────────────────────────────────── */}
       {(activeAgency === 'nso' || activeAgency === 'all') && (
         <section className="agency-section agency-nso anim-slide">
-          <div className="agency-banner banner-nso">
-            <div className="banner-left">
-              <div className="agency-crest"><Database size={24} /></div>
+          <div className="agency-header-card agency-header-nso">
+            <div className="agency-header-left">
+              <div className="agency-header-icon"><Database size={20} /></div>
               <div>
-                <h2>National Statistical Office (NSO)</h2>
-                <p>Data Informatics &amp; Innovation Division (DIID) · Automated Scraping Pipeline &amp; Data Hygiene</p>
+                <div className="agency-header-kicker">NATIONAL STATISTICAL OFFICE</div>
+                <h2 className="agency-header-title">Data Informatics &amp; Innovation Division (DIID)</h2>
+                <p className="agency-header-desc">
+                  Autonomous 02:00 IST scraping daemon telemetry, Log-MAD outlier filtering (k=3.0), and Open Government Data (OGD) export.
+                </p>
               </div>
             </div>
-            <div className="banner-actions">
+            <div className="agency-header-actions">
               <a href="/api/export/csv" download="nso_airfare_sanitized.csv" className="btn btn-primary btn-sm">
                 <Download size={14} /> Download OGD-Compliant CSV
               </a>

@@ -4221,39 +4221,17 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transform: translateY(-1px);
 }
 
-.agency-pill.active-mospi {
-  border-color: #1e3a5f;
-  background: linear-gradient(135deg, #0d2737 0%, #173b50 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(13, 39, 55, 0.35);
-}
-
-.agency-pill.active-rbi {
-  border-color: #0d5c75;
-  background: linear-gradient(135deg, #093746 0%, #0c4d61 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(12, 77, 97, 0.35);
-}
-
-.agency-pill.active-dgca {
-  border-color: #115e59;
-  background: linear-gradient(135deg, #0d3835 0%, #134e4a 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(19, 78, 74, 0.35);
-}
-
-.agency-pill.active-nso {
-  border-color: #334155;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(51, 65, 85, 0.35);
-}
-
+.agency-pill.active-mospi,
+.agency-pill.active-rbi,
+.agency-pill.active-dgca,
+.agency-pill.active-nso,
 .agency-pill.active-all {
-  border-color: #475569;
-  background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(31, 41, 55, 0.35);
+  border-color: var(--accent);
+  background: var(--bg-surface);
+  color: var(--accent-2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 3px solid var(--accent);
+  font-weight: 700;
 }
 
 .agency-pill-icon {
@@ -4263,7 +4241,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--bg-subtle);
+  color: var(--accent);
   flex-shrink: 0;
 }
 
@@ -4293,74 +4272,93 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #fbbf24;
+  background: var(--accent);
   position: absolute;
   top: 8px;
   right: 8px;
 }
 
-.agency-banner {
+/* Clean Institutional Header Cards (Replaces heavy gradient banners) */
+.agency-header-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
   border-radius: var(--r-xl);
-  padding: 22px 24px;
-  color: #ffffff;
+  padding: 20px 24px;
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 20px;
-  box-shadow: var(--shadow-md);
 }
 
-.banner-mospi {
-  background: linear-gradient(135deg, #091e2b 0%, #103448 60%, #16435b 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.agency-header-mospi {
+  border-left-color: #16435b;
 }
 
-.banner-rbi {
-  background: linear-gradient(135deg, #082834 0%, #0d4659 60%, #125e77 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.agency-header-rbi {
+  border-left-color: #0284c7;
 }
 
-.banner-dgca {
-  background: linear-gradient(135deg, #0a2c28 0%, #0d4841 60%, #135d54 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.agency-header-dgca {
+  border-left-color: #0d9488;
 }
 
-.banner-nso {
-  background: linear-gradient(135deg, #111827 0%, #1f2937 60%, #374151 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+.agency-header-nso {
+  border-left-color: #475569;
 }
 
-.banner-left {
+.agency-header-left {
   display: flex;
   align-items: center;
   gap: 16px;
   min-width: 0;
 }
 
-.agency-crest {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.14);
+.agency-header-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--accent);
   flex-shrink: 0;
 }
 
-.banner-left h2 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #ffffff !important;
-  margin-bottom: 3px;
+.agency-header-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 
-.banner-left p {
-  font-size: 0.84rem;
-  color: #cbd5e1;
+.agency-header-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.agency-header-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 720px;
   margin: 0;
+  line-height: 1.5;
+}
+
+.agency-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .agency-kpi-grid {

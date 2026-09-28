@@ -1,0 +1,93 @@
+{
+  "status": "completed",
+  "done": true,
+  "started_at": "2026-09-28T12:38:48.969Z",
+  "finished_at": "2026-09-28T12:38:49.822Z",
+  "trigger_type": "manual",
+  "corridors_scraped": 6,
+  "lead_windows": [
+    1,
+    7,
+    15,
+    30,
+    45
+  ],
+  "quotes_harvested": 180,
+  "outliers_filtered": 24,
+  "clean_quotes_committed": 156,
+  "apix_recalculated": 115.42,
+  "corridor_details": {
+    "DEL-BOM": {
+      "quotes_count": 30,
+      "median_fare": 6442,
+      "outliers": 8,
+      "lead_fares": {
+        "T+1": 8375,
+        "T+7": 6442,
+        "T+15": 6426,
+        "T+30": 6500,
+        "T+45": 5476
+      }
+    },
+    "DEL-BLR": {
+      "quotes_count": 30,
+      "median_fare": 8249,
+      "outliers": 13,
+      "lead_fares": {
+        "T+1": 10724,
+        "T+7": 8249,
+        "T+15": 8164,
+        "T+30": 9027,
+        "T+45": 7012
+      }
+    },
+    "BOM-BLR": {
+      "quotes_count": 30,
+      "median_fare": 4843,
+      "outliers": 0,
+      "lead_fares": {
+        "T+1": 6296,
+        "T+7": 4843,
+        "T+15": 4843,
+        "T+30": 4843,
+        "T+45": 4117
+      }
+    },
+    "DEL-CCU": {
+      "quotes_count": 30,
+      "median_fare": 8101,
+      "outliers": 1,
+      "lead_fares": {
+        "T+1": 10531,
+        "T+7": 8101,
+        "T+15": 7722,
+        "T+30": 8245,
+        "T+45": 6886
+      }
+    },
+    "MAA-DEL": {
+      "quotes_count": 30,
+      "median_fare": 9226,
+      "outliers": 0,
+      "lead_fares": {
+        "T+1": 11994,
+        "T+7": 9226,
+        "T+15": 9568,
+        "T+30": 9778,
+        "T+45": 7842
+      }
+    },
+    "BLR-HYD": {
+      "quotes_count": 30,
+      "median_fare": 4815,
+      "outliers": 2,
+      "lead_fares": {
+        "T+1": 6260,
+        "T+7": 4815,
+        "T+15": 4284,
+        "T+30": 4284,
+        "T+45": 4093
+      }
+    }
+  }
+}

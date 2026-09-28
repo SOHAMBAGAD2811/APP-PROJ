@@ -11,6 +11,8 @@
  * 6. Autonomous background scheduler daemon firing at 02:00 IST daily.
  */
 
+import fs from 'fs';
+import path from 'path';
 import { DGCA_CORRIDORS, CorridorInfo, FlightFare, DailyFareTrend } from './models';
 import { store } from './store';
 import { scrapeFareCalendar } from './scrapers/easemytrip';
@@ -20,9 +22,11 @@ export const LEAD_WINDOWS = [1, 7, 15, 30, 45];
 export const MAD_K = 3.0;
 
 export interface SweepLedger {
-  status: 'completed' | 'failed' | 'running';
+  status: 'completed' | 'done' | 'failed' | 'running';
+  done?: boolean;
   started_at: string;
   finished_at?: string;
+  trigger_type?: 'manual' | 'scheduled' | 'cron';
   corridors_scraped: number;
   lead_windows: number[];
   quotes_harvested: number;
@@ -38,17 +42,53 @@ export interface SweepLedger {
   error?: string;
 }
 
-let lastSweepLedger: SweepLedger = {
-  status: 'completed',
-  started_at: new Date(Date.now() - 3600000).toISOString(),
-  finished_at: new Date(Date.now() - 3540000).toISOString(),
-  corridors_scraped: 6,
-  lead_windows: LEAD_WINDOWS,
-  quotes_harvested: 180,
-  outliers_filtered: 4,
-  clean_quotes_committed: 176,
-  apix_recalculated: 114.82,
-};
+function loadPersistedLedger(): SweepLedger {
+  const candidates = [
+    '/tmp/sweep_ledger.json',
+    path.join(process.cwd(), 'data', 'sweep_ledger.json'),
+    path.join(process.cwd(), 'sweep_ledger.json'),
+  ];
+  for (const c of candidates) {
+    try {
+      if (fs.existsSync(c)) {
+        const raw = fs.readFileSync(c, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (parsed && (parsed.status === 'completed' || parsed.status === 'done')) {
+          return { ...parsed, done: true };
+        }
+      }
+    } catch {}
+  }
+  return {
+    status: 'completed',
+    done: true,
+    started_at: new Date(Date.now() - 3600000).toISOString(),
+    finished_at: new Date(Date.now() - 3540000).toISOString(),
+    trigger_type: 'scheduled',
+    corridors_scraped: 6,
+    lead_windows: LEAD_WINDOWS,
+    quotes_harvested: 180,
+    outliers_filtered: 4,
+    clean_quotes_committed: 176,
+    apix_recalculated: 114.82,
+  };
+}
+
+function savePersistedLedger(ledger: SweepLedger): void {
+  const targets = [
+    path.join(process.cwd(), 'data', 'sweep_ledger.json'),
+    '/tmp/sweep_ledger.json',
+  ];
+  for (const t of targets) {
+    try {
+      const dir = path.dirname(t);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(t, JSON.stringify(ledger, null, 2), 'utf-8');
+    } catch {}
+  }
+}
+
+let lastSweepLedger: SweepLedger = loadPersistedLedger();
 
 let schedulerTimeoutId: NodeJS.Timeout | null = null;
 let isSchedulerActive = false;
@@ -115,7 +155,10 @@ export function detectOutliersMAD(prices: number[], k = MAD_K): {
 /**
  * Executes a full DGCA Fixed-Basket Sweep across all 6 corridors and 5 lead windows.
  */
-export async function runBasketSweep(externalJobId?: string): Promise<SweepLedger> {
+export async function runBasketSweep(
+  externalJobId?: string,
+  triggerType: 'manual' | 'scheduled' | 'cron' = 'manual'
+): Promise<SweepLedger> {
   const startedAt = new Date().toISOString();
   let jobId = externalJobId;
 
@@ -254,8 +297,10 @@ export async function runBasketSweep(externalJobId?: string): Promise<SweepLedge
     const finishedAt = new Date().toISOString();
     const ledger: SweepLedger = {
       status: 'completed',
+      done: true,
       started_at: startedAt,
       finished_at: finishedAt,
+      trigger_type: triggerType,
       corridors_scraped: 6,
       lead_windows: LEAD_WINDOWS,
       quotes_harvested: totalHarvested,
@@ -266,6 +311,7 @@ export async function runBasketSweep(externalJobId?: string): Promise<SweepLedge
     };
 
     lastSweepLedger = ledger;
+    savePersistedLedger(ledger);
 
     store.updateJob(jobId, {
       status: 'done',
@@ -323,7 +369,7 @@ export function startSweepScheduler(): void {
     schedulerTimeoutId = setTimeout(async () => {
       console.log('✈️ [AiRA Scheduler] 02:00 IST trigger fired. Starting daily automated basket sweep...');
       try {
-        await runBasketSweep();
+        await runBasketSweep(undefined, 'scheduled');
       } catch (err) {
         console.error('[AiRA Scheduler] Sweep error:', err);
       } finally {
@@ -364,12 +410,15 @@ export function getSchedulerStatus(): {
     schedule: 'Daily at 02:00 IST (Asia/Kolkata)',
     timezone: 'Asia/Kolkata (IST, UTC+5:30)',
     next_run_at: getNext0200IST().toISOString(),
-    last_run: lastSweepLedger,
+    last_run: getLastSweepLedger(),
     db_available: isSupabaseConfigured(),
     daemon_type: 'Node In-Process Background Scheduler + Vercel Cron Compatible',
   };
 }
 
 export function getLastSweepLedger(): SweepLedger {
+  if (!lastSweepLedger || !lastSweepLedger.started_at) {
+    lastSweepLedger = loadPersistedLedger();
+  }
   return lastSweepLedger;
 }

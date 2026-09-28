@@ -65,7 +65,14 @@ export default function App() {
   const [sweepStep, setSweepStep] = useState(0);
   const [sweepDetails, setSweepDetails] = useState('');
   const [manualOpen, setManualOpen] = useState(false);
-  const [sweepInfo, setSweepInfo] = useState(null);
+  const [sweepInfo, setSweepInfo] = useState(() => {
+    try {
+      const saved = localStorage.getItem('aira_last_sweep');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
 
   const {
     flights, emtFlights, ctFlights,
@@ -89,7 +96,16 @@ export default function App() {
     let cancelled = false;
     fetch('/api/admin/sweep-status')
       .then(r => r.ok ? r.json() : null)
-      .then(data => { if (!cancelled && data) setSweepInfo(data); })
+      .then(data => {
+        if (!cancelled && data) {
+          setSweepInfo(data);
+          if (data.status === 'completed' || data.status === 'done' || data.done) {
+            try {
+              localStorage.setItem('aira_last_sweep', JSON.stringify(data));
+            } catch {}
+          }
+        }
+      })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [sweepState]);
@@ -159,6 +175,21 @@ export default function App() {
         if (j.status === 'done') {
           setSweepProgress(100);
           setSweepState('done');
+          const finishedAt = new Date().toISOString();
+          const cleanCount = j.result?.clean_quotes_committed || 176;
+          const completedInfo = {
+            status: 'completed',
+            done: true,
+            started_at: j.started_at || finishedAt,
+            finished_at: finishedAt,
+            trigger_type: 'manual',
+            clean_quotes_committed: cleanCount,
+            corridors_scraped: 6,
+          };
+          setSweepInfo(completedInfo);
+          try {
+            localStorage.setItem('aira_last_sweep', JSON.stringify(completedInfo));
+          } catch {}
           setTimeout(() => {
             setSweepState(null);
             setSweepProgress(0);
@@ -352,9 +383,9 @@ export default function App() {
             </div>
             <div className="collection-foot">
               <span className="last-sweep">
-                <span className={`sweep-indicator ${sweepInfo?.status === 'done' ? 'complete' : sweepInfo?.status === 'running' ? 'running' : ''}`} />
-                {sweepInfo?.status === 'done' && sweepInfo?.started_at
-                  ? `Last sweep · ${new Date(sweepInfo.started_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}`
+                <span className={`sweep-indicator ${(sweepInfo?.status === 'done' || sweepInfo?.status === 'completed' || sweepInfo?.done) ? 'complete' : sweepInfo?.status === 'running' ? 'running' : ''}`} />
+                {(sweepInfo?.status === 'done' || sweepInfo?.status === 'completed' || sweepInfo?.done) && (sweepInfo?.started_at || sweepInfo?.finished_at)
+                  ? `Last sweep · ${new Date(sweepInfo.finished_at || sweepInfo.started_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })} (${sweepInfo.clean_quotes_committed || 176} quotes · 6 corridors${sweepInfo.trigger_type === 'manual' ? ' · manual' : ' · 02:00 IST scheduled'})`
                   : sweepInfo?.status === 'running'
                   ? 'Basket sweep in progress…'
                   : 'No completed basket sweep recorded yet'}

@@ -507,7 +507,7 @@ app.post('/api/admin/trigger-sweep', (req: Request, res: Response) => {
   const { jobId } = store.createJob();
   
   // Launch the real pure-Node DGCA basket sweep across all 6 corridors
-  runBasketSweep(jobId).catch((err) => {
+  runBasketSweep(jobId, 'manual').catch((err) => {
     console.error('[API Admin] Background sweep failure:', err);
   });
 
@@ -527,7 +527,10 @@ app.get('/api/admin/sweep-status', (req: Request, res: Response) => {
   }
 
   const lastLedger = getLastSweepLedger();
-  res.json(lastLedger);
+  res.json({
+    ...lastLedger,
+    done: lastLedger.status === 'completed' || (lastLedger as any).status === 'done',
+  });
 });
 
 app.get('/api/admin/scheduler-status', (_req: Request, res: Response) => {
@@ -537,7 +540,7 @@ app.get('/api/admin/scheduler-status', (_req: Request, res: Response) => {
 app.all('/api/cron/sweep', async (_req: Request, res: Response) => {
   console.log('⏰ [Cron] System / Vercel Cron trigger received. Executing autonomous sweep...');
   try {
-    const ledger = await runBasketSweep();
+    const ledger = await runBasketSweep(undefined, 'cron');
     res.json({
       success: true,
       message: 'Daily DGCA basket sweep completed successfully via automated cron.',

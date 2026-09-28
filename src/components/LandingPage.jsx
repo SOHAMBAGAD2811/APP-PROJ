@@ -134,40 +134,51 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth, onGoToDocs }
     },
   ];
 
-  // Stakeholder / Role-Based Portals (Neermalya approach tailored for MoSPI problem statement)
+  // Stakeholder / Role-Based Portals (MoSPI, RBI, DGCA, NSO)
   const rolePortals = [
     {
       id: 'mospi',
-      role: 'For MoSPI & NSO Economists',
+      role: 'For MoSPI Economists',
       dept: 'Price Statistics Division (PSD) · National Accounts',
       desc: 'Official Lowe Price Index calculations, base period normalization (I₀ = 100), monthly statistical bulletin generation, and CPI transport sub-index basket augmentation.',
-      actionText: 'Access Index Engine',
-      badge: 'Index & Bulletin',
+      actionText: 'Open MoSPI Dashboard',
+      badge: 'Lowe Index & Bulletin',
       icon: Landmark,
       colorClass: 'portal-navy',
-      targetHash: '.apix-section-anchor'
+      targetHash: 'mospi'
     },
     {
       id: 'rbi',
       role: 'For RBI & Macro Analysts',
       dept: 'Monetary Policy Department · Economic Research',
       desc: 'High-frequency daily/weekly inflation telemetry, advance-purchase yield curve elasticity (T+1 vs T+45), and ATF fuel shock What-If policy simulation engine.',
-      actionText: 'Simulate Policy Shocks',
-      badge: 'Telemetry & Shocks',
+      actionText: 'Open RBI Dashboard',
+      badge: 'Inflation & Fuel Shocks',
       icon: TrendingUp,
       colorClass: 'portal-teal',
-      targetHash: '.apix-section-anchor'
+      targetHash: 'rbi'
     },
     {
       id: 'dgca',
-      role: 'For DGCA & Aviation Regulators',
+      role: 'For DGCA Regulators',
       dept: 'Tariff Monitoring Cell · Air Transport Statistics',
       desc: 'Multi-carrier corridor fare transparency, fare component unbundling (Base vs UDF vs GST vs convenience fees), and predatory surge fare outlier detection.',
-      actionText: 'Audit Corridor Yields',
+      actionText: 'Open DGCA Dashboard',
       badge: 'Tariff & Unbundling',
       icon: Plane,
       colorClass: 'portal-emerald',
-      targetHash: ''
+      targetHash: 'dgca'
+    },
+    {
+      id: 'nso',
+      role: 'For NSO Data Scientists',
+      dept: 'Data Informatics & Innovation Division (DIID)',
+      desc: 'Automated 02:00 IST scraping daemon telemetry, Log-MAD statistical outlier bounds (k=3.0), LOCF imputation audit, and Open Government Data (OGD) exports.',
+      actionText: 'Open NSO Dashboard',
+      badge: 'Data Hygiene & MAD',
+      icon: Database,
+      colorClass: 'portal-navy',
+      targetHash: 'nso'
     }
   ];
 

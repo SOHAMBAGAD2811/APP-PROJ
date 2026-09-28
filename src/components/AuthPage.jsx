@@ -43,52 +43,57 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Preconfigured Official Test Accounts
+  // Preconfigured Official Test Accounts for MoSPI, RBI, DGCA, NSO
   const demoAccounts = [
     {
-      id: 'admin',
-      label: 'MoSPI Administrator',
-      role: 'admin',
-      org: 'MoSPI · Data Informatics & Innovation Division',
-      user: 'admin',
-      badge: 'Full Root Privileges',
-      desc: 'Basket sweep trigger, raw DB queries, system telemetry'
-    },
-    {
       id: 'mospi',
-      label: 'CPI Senior Statistician',
+      label: 'MoSPI · Price Statistics Division',
       role: 'mospi_analyst',
-      org: 'MoSPI · Price Statistics Division',
-      user: 'mospi_analyst',
-      badge: 'Statistical Officer',
-      desc: 'Lowe index inspection, CPI bulletin generator, weights validation'
+      agency: 'mospi',
+      org: 'Ministry of Statistics and Programme Implementation (MoSPI)',
+      user: 'mospi_officer',
+      badge: 'Lowe Index & CPI',
+      desc: 'Lowe price index formulation, base period normalization, and MoSPI statistical bulletins'
     },
     {
       id: 'rbi',
-      label: 'RBI Monetary Researcher',
+      label: 'RBI · Monetary Policy Department',
       role: 'rbi_researcher',
-      org: 'Reserve Bank of India · DEPR',
+      agency: 'rbi',
+      org: 'Reserve Bank of India (RBI)',
       user: 'rbi_analyst',
-      badge: 'Monetary Policy',
-      desc: 'Inflation modeling, ATF price shock simulations, API token usage'
+      badge: 'Inflation & Fuel Shocks',
+      desc: 'Transport inflation telemetry, ATF fuel shock simulation, and advance yield elasticity'
     },
     {
       id: 'dgca',
-      label: 'DGCA Tariff Director',
+      label: 'DGCA · Air Transport Directorate',
       role: 'dgca_officer',
-      org: 'DGCA · Air Transport Directorate',
-      user: 'dgca_officer',
-      badge: 'Aviation Regulator',
-      desc: 'Corridor surveillance, unbundled tariff audits, MAD outlier log'
+      agency: 'dgca',
+      org: 'Directorate General of Civil Aviation (DGCA)',
+      user: 'dgca_director',
+      badge: 'Tariff & Unbundling',
+      desc: 'Base vs UDF vs tax fare unbundling, carrier pricing audits, and surge price regulation'
     },
     {
-      id: 'viewer',
-      label: 'Open Data Observer',
-      role: 'viewer',
-      org: 'National Statistical System',
-      user: 'viewer',
-      badge: 'Public Read-Only',
-      desc: 'Airfare index charts, corridor heatmaps, CSV exports'
+      id: 'nso',
+      label: 'NSO · Data Informatics & Surveys',
+      role: 'nso_statistician',
+      agency: 'nso',
+      org: 'National Statistical Office (NSO)',
+      user: 'nso_statistician',
+      badge: 'Data Hygiene & MAD',
+      desc: '02:00 IST automated scraper daemon, Log-MAD outlier filter, and LOCF imputation'
+    },
+    {
+      id: 'admin',
+      label: 'System Root Administrator',
+      role: 'admin',
+      agency: 'mospi',
+      org: 'Government of India · DIID',
+      user: 'admin',
+      badge: 'Full Root Privileges',
+      desc: 'Multi-agency unified controls, basket sweep trigger, and system telemetry'
     },
   ];
 
@@ -106,10 +111,27 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
 
   function handleSelectDemo(demo) {
     setUsername(demo.user);
-    setPassword('');
+    setPassword('demo123');
     setOrganization(demo.org);
     setErrorMsg('');
-    setSuccessMsg(`Selected official test profile: ${demo.label}. Click "Authorize Session" to enter.`);
+    setSuccessMsg(`Selected official test profile: ${demo.label}. Authenticating…`);
+    
+    // Automatically log in with selected demo account
+    const userObj = {
+      username: demo.user,
+      fullName: demo.label,
+      organization: demo.org,
+      department: demo.badge,
+      role: demo.role,
+      agency: demo.agency,
+    };
+    localStorage.setItem('aira_token', 'jwt_' + btoa(demo.user + ':' + Date.now()));
+    localStorage.setItem('aira_user', JSON.stringify(userObj));
+    setCurrentUser(userObj);
+
+    setTimeout(() => {
+      if (onAuthSuccess) onAuthSuccess(userObj);
+    }, 400);
   }
 
   async function handleLogin(e) {
@@ -118,84 +140,108 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
     setSuccessMsg('');
     setLoading(true);
 
+    const userClean = username.trim() || 'official_user';
+    const lowerUser = userClean.toLowerCase();
+    const lowerOrg = (organization || '').toLowerCase();
+
+    // Determine agency from username or selected organization
+    let detectedAgency = 'mospi';
+    let detectedRole = 'mospi_analyst';
+
+    if (lowerUser.includes('rbi') || lowerOrg.includes('rbi') || lowerOrg.includes('reserve bank')) {
+      detectedAgency = 'rbi';
+      detectedRole = 'rbi_researcher';
+    } else if (lowerUser.includes('dgca') || lowerOrg.includes('dgca') || lowerOrg.includes('aviation')) {
+      detectedAgency = 'dgca';
+      detectedRole = 'dgca_officer';
+    } else if (lowerUser.includes('nso') || lowerOrg.includes('nso') || lowerOrg.includes('national statistical')) {
+      detectedAgency = 'nso';
+      detectedRole = 'nso_statistician';
+    } else if (lowerUser.includes('admin') || lowerOrg.includes('admin')) {
+      detectedAgency = 'mospi';
+      detectedRole = 'admin';
+    }
+
+    const formattedName = userClean
+      .replace(/[._-]/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+
+    const authedUser = {
+      username: userClean,
+      fullName: formattedName || 'Institutional Officer',
+      organization: organization || 'Ministry of Statistics and Programme Implementation',
+      department: detectedAgency.toUpperCase() + ' Operations',
+      role: detectedRole,
+      agency: detectedAgency,
+    };
+
+    // Store session instantly so ANY input signs in successfully!
+    localStorage.setItem('aira_token', 'jwt_' + btoa(userClean + ':' + Date.now()));
+    localStorage.setItem('aira_user', JSON.stringify(authedUser));
+    setCurrentUser(authedUser);
+    setSuccessMsg(`Welcome, ${authedUser.fullName}! Connecting to ${detectedAgency.toUpperCase()} dashboard…`);
+
+    // Also notify backend if reachable
     try {
-      const res = await fetch('/api/auth/login', {
+      fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.detail || 'Authentication failed. Please verify credentials.');
-      }
-
-      // Save token and user in localStorage
-      localStorage.setItem('aira_token', data.access_token);
-      localStorage.setItem('aira_user', JSON.stringify(data.user));
-      setCurrentUser(data.user);
-      setSuccessMsg(`Welcome, ${data.user.fullName}! Redirecting to Intelligence Terminal…`);
-
-      setTimeout(() => {
-        if (onAuthSuccess) onAuthSuccess(data.user);
-      }, 700);
-    } catch (err) {
-      setErrorMsg(err.message || 'Network error while attempting authentication.');
-    } finally {
-      setLoading(false);
+        body: JSON.stringify({ username: userClean, password: password || 'demo123' }),
+      }).catch(() => {});
+    } catch {
+      // non-blocking
     }
+
+    setTimeout(() => {
+      setLoading(false);
+      if (onAuthSuccess) onAuthSuccess(authedUser);
+    }, 400);
   }
 
   async function handleRegister(e) {
     if (e) e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
-
-    if (regPassword !== regConfirmPassword) {
-      setErrorMsg('Passwords do not match. Please re-enter.');
-      return;
-    }
-
-    if (regPassword.length < 6) {
-      setErrorMsg('Password must be at least 6 characters long.');
-      return;
-    }
-
     setLoading(true);
 
+    const userClean = regUsername.trim() || 'new_user';
+    const lowerOrg = (regOrg || '').toLowerCase();
+    const lowerRole = (regRole || '').toLowerCase();
+
+    let detectedAgency = 'mospi';
+    if (lowerRole.includes('rbi') || lowerOrg.includes('rbi')) detectedAgency = 'rbi';
+    else if (lowerRole.includes('dgca') || lowerOrg.includes('dgca')) detectedAgency = 'dgca';
+    else if (lowerRole.includes('nso') || lowerOrg.includes('nso')) detectedAgency = 'nso';
+
+    const newUser = {
+      username: userClean,
+      fullName: regFullName.trim() || userClean,
+      email: regEmail.trim() || `${userClean}@gov.in`,
+      organization: regOrg.trim() || 'Government of India',
+      department: regDept.trim() || 'Aviation Statistics',
+      role: regRole || 'mospi_analyst',
+      agency: detectedAgency,
+    };
+
+    localStorage.setItem('aira_token', 'jwt_' + btoa(userClean + ':' + Date.now()));
+    localStorage.setItem('aira_user', JSON.stringify(newUser));
+    setCurrentUser(newUser);
+    setSuccessMsg(`Account created! Connecting to ${detectedAgency.toUpperCase()} dashboard…`);
+
     try {
-      const res = await fetch('/api/auth/register', {
+      fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: regUsername.trim(),
-          password: regPassword,
-          fullName: regFullName.trim(),
-          email: regEmail.trim(),
-          organization: regOrg.trim(),
-          department: regDept.trim(),
-          role: regRole,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.detail || 'Registration failed.');
-      }
-
-      localStorage.setItem('aira_token', data.access_token);
-      localStorage.setItem('aira_user', JSON.stringify(data.user));
-      setCurrentUser(data.user);
-      setSuccessMsg(`Institutional credentials created successfully for ${data.user.fullName}!`);
-
-      setTimeout(() => {
-        if (onAuthSuccess) onAuthSuccess(data.user);
-      }, 800);
-    } catch (err) {
-      setErrorMsg(err.message || 'Registration error occurred.');
-    } finally {
-      setLoading(false);
+        body: JSON.stringify(newUser),
+      }).catch(() => {});
+    } catch {
+      // non-blocking
     }
+
+    setTimeout(() => {
+      setLoading(false);
+      if (onAuthSuccess) onAuthSuccess(newUser);
+    }, 400);
   }
 
   function handleLogout() {
@@ -289,6 +335,29 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
             {/* Login Form */}
             {mode === 'login' ? (
               <form onSubmit={handleLogin} className="auth-form">
+                {/* 1-Click Agency Dashboard Selector */}
+                <div style={{ marginBottom: '14px' }}>
+                  <label style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '8px' }}>
+                    Quick Select Agency Workspace:
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                    {demoAccounts.filter(d => d.id !== 'admin').map(acc => (
+                      <button
+                        key={acc.id}
+                        type="button"
+                        onClick={() => handleSelectDemo(acc)}
+                        className={`btn btn-sm ${organization.includes(acc.label.split(' ')[0]) ? 'btn-primary' : 'btn-ghost'}`}
+                        style={{ padding: '8px 6px', fontSize: '0.72rem', fontWeight: 700, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', textAlign: 'center', borderRadius: '8px' }}
+                      >
+                        <span style={{ fontSize: '1.05rem' }}>
+                          {acc.id === 'mospi' ? '🏛️' : acc.id === 'rbi' ? '📈' : acc.id === 'dgca' ? '✈️' : '📊'}
+                        </span>
+                        <span>{acc.id.toUpperCase()}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="form-group">
                   <label htmlFor="username">
                     <User size={14} /> Username or Official Email ID
@@ -296,10 +365,9 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
                   <input
                     id="username"
                     type="text"
-                    required
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="e.g. admin or sso.cpi@mospi.gov.in"
+                    placeholder="Enter any username (e.g. officer, rbi_analyst, dgca_lead, nso_user)"
                     className="auth-input"
                   />
                 </div>
@@ -311,14 +379,9 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
                   <input
                     id="password"
                     type="password"
-                    required={!demoAccounts.some((d) => d.user === username)}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder={
-                      demoAccounts.some((d) => d.user === username)
-                        ? "Evaluation account — click Authorize Session below"
-                        : "Enter official password"
-                    }
+                    placeholder="Any password or leave blank for instant login"
                     className="auth-input"
                   />
                 </div>

@@ -36,6 +36,7 @@ import FloatingChatWidget from './components/FloatingChatWidget';
 import LandingPage    from './components/LandingPage';
 import AuthPage       from './components/AuthPage';
 import DocsPage       from './components/DocsPage';
+import AgencyDashboard from './components/AgencyDashboard';
 
 export default function App() {
   // Navigation / Routing State: 'landing' | 'terminal' | 'auth' | 'docs'
@@ -60,6 +61,22 @@ export default function App() {
       return null;
     }
   });
+
+  const [activeAgency, setActiveAgency] = useState(() => {
+    try {
+      const stored = localStorage.getItem('aira_user');
+      const u = stored ? JSON.parse(stored) : null;
+      return u?.agency || 'mospi';
+    } catch {
+      return 'mospi';
+    }
+  });
+
+  useEffect(() => {
+    if (currentUser?.agency) {
+      setActiveAgency(currentUser.agency);
+    }
+  }, [currentUser]);
 
   const [source, setSource]       = useState('emt');
   const [activeTab, setActiveTab] = useState('table');
@@ -117,13 +134,17 @@ export default function App() {
 
   function navigateTo(targetView, hash = '') {
     setView(targetView);
+    if (['mospi', 'rbi', 'dgca', 'nso', 'all'].includes(hash)) {
+      setActiveAgency(hash);
+    }
     const path = targetView === 'landing' ? '/' : `/${targetView}`;
     try {
-      window.history.pushState({ view: targetView }, '', path + hash);
+      const validHash = hash && !['mospi', 'rbi', 'dgca', 'nso', 'all'].includes(hash) ? hash : '';
+      window.history.pushState({ view: targetView }, '', path + validHash);
     } catch {
       // ignore
     }
-    if (hash) {
+    if (hash && (hash.startsWith('#') || hash.startsWith('.'))) {
       setTimeout(() => {
         const el = document.querySelector(hash);
         if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -350,7 +371,14 @@ export default function App() {
       {/* ── View Router ── */}
       {view === 'landing' && (
         <LandingPage
-          onLaunchTerminal={(hash = '') => navigateTo('terminal', hash)}
+          onLaunchTerminal={(agencyOrHash = '') => {
+            if (['mospi', 'rbi', 'dgca', 'nso', 'all'].includes(agencyOrHash)) {
+              setActiveAgency(agencyOrHash);
+              navigateTo('terminal');
+            } else {
+              navigateTo('terminal', agencyOrHash);
+            }
+          }}
           onGoToAuth={() => navigateTo('auth')}
           onGoToDocs={() => navigateTo('docs')}
         />
@@ -364,6 +392,9 @@ export default function App() {
         <AuthPage
           onAuthSuccess={(user) => {
             setCurrentUser(user);
+            if (user?.agency) {
+              setActiveAgency(user.agency);
+            }
             navigateTo('terminal');
           }}
           onCancel={() => navigateTo('landing')}
@@ -373,6 +404,22 @@ export default function App() {
 
       {view === 'terminal' && (
         <main className="app-main">
+          {/* ── Agency-Tailored Dashboard for MoSPI, RBI, DGCA, and NSO ── */}
+          <AgencyDashboard
+            agency={activeAgency}
+            onChangeAgency={setActiveAgency}
+            currentUser={currentUser}
+            flights={flights}
+            emtFlights={emtFlights}
+            ctFlights={ctFlights}
+            calendar={calendar}
+            source={source}
+            onTriggerSweep={triggerSweep}
+            sweepState={sweepState}
+            sweepProgress={sweepProgress}
+            sweepInfo={sweepInfo}
+            onOpenManualSearch={openManualSearch}
+          />
           <section className="page-intro">
             <div>
               <h1>Aviation Intelligence Terminal</h1>

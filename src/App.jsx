@@ -274,17 +274,6 @@ export default function App() {
             </button>
             <button
               className="app-nav-btn"
-              onClick={() => {
-                if (view !== 'terminal') navigateTo('terminal');
-                setTimeout(() => {
-                  document.querySelector('.apix-section-anchor')?.scrollIntoView({ behavior: 'smooth' });
-                }, 150);
-              }}
-            >
-              APIx Index
-            </button>
-            <button
-              className="app-nav-btn"
               onClick={() => navigateTo('landing', '#feature-comparison')}
             >
               Comparison

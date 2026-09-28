@@ -921,7 +921,7 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth, onGoToDocs }
               <h5>QUICK NAVIGATION</h5>
               <ul className="footer-links">
                 <li><button onClick={() => onLaunchTerminal?.()} className="footer-link-btn">Intelligence Terminal</button></li>
-                <li><button onClick={() => onLaunchTerminal?.('.apix-section-anchor')} className="footer-link-btn">APIx Real-Time Index</button></li>
+                <li><button onClick={() => onLaunchTerminal?.('mospi')} className="footer-link-btn">Real-Time APIx Series</button></li>
                 <li><a href="#feature-comparison" className="footer-link-btn">Feature Comparison</a></li>
                 <li><a href="#stakeholder-portals" className="footer-link-btn">Stakeholder Portals</a></li>
                 <li><a href="#methodology" className="footer-link-btn">PSD Lowe Index Math</a></li>

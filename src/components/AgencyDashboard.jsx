@@ -166,7 +166,7 @@ export default function AgencyDashboard({
           {/* MoSPI Key Statistical KPIs */}
           <div className="agency-kpi-grid">
             <div className="agency-kpi-card">
-              <div className="kpi-label">COMPOSITE APIx INDEX</div>
+              <div className="kpi-label">NATIONAL COMPOSITE APIx</div>
               <div className="kpi-value text-accent">114.82</div>
               <div className="kpi-sub">Base Period Normalized: 2024-Q1 = 100.0</div>
             </div>

@@ -458,7 +458,7 @@ export default function DocsPage({ onGoToLanding }) {
             </div>
             <h2 className="docs-section-title">What-If Policy Simulation</h2>
             <p className="docs-prose">
-              Runs a parametric shock simulation on the APIx index. Useful for modeling the impact of ATF
+              Runs a parametric shock simulation on the APIx airfare series. Useful for modeling the impact of ATF
               price changes or demand shifts on the CPI transport component.
             </p>
 

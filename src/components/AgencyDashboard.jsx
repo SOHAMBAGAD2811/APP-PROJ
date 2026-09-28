@@ -8,7 +8,6 @@ import {
   TrendingUp,
   Sliders,
   Shield,
-  FileText,
   Clock,
   CheckCircle2,
   AlertCircle,
@@ -21,9 +20,7 @@ import {
   ArrowRight,
   RefreshCw,
   Search,
-  Scale,
-  Copy,
-  Check
+  Scale
 } from 'lucide-react';
 import SimulatorCard from './SimulatorCard';
 import RouteHeatmap from './RouteHeatmap';
@@ -47,9 +44,7 @@ export default function AgencyDashboard({
   onOpenManualSearch
 }) {
   const userAgency = currentUser?.agency || agency || 'mospi';
-  const [bulletinModalOpen, setBulletinModalOpen] = useState(false);
-  const [copiedBulletin, setCopiedBulletin] = useState(false);
-  const [downloadingBulletin, setDownloadingBulletin] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const bulletinText = `GOVERNMENT OF INDIA
 MINISTRY OF STATISTICS AND PROGRAMME IMPLEMENTATION
@@ -79,42 +74,22 @@ Index Base: 2024-Q1 = 100.0 | Specification: MoSPI PSD Lowe Formulation
    - Validation Status     : Pearson r = 0.942 vs Historical DGCA Benchmarks
 ======================================================================`;
 
-  const handleDownloadBulletin = async () => {
-    setDownloadingBulletin(true);
+  const handleDownloadBulletin = () => {
     try {
-      const res = await fetch('/api/export/bulletin');
-      if (res.ok) {
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `MoSPI_APIx_Bulletin_${new Date().toISOString().slice(0, 10)}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        setDownloadingBulletin(false);
-        return;
-      }
+      const blob = new Blob([bulletinText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `MoSPI_APIx_Bulletin_${new Date().toISOString().slice(0, 10)}.txt`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2500);
     } catch {
-      // fallback to client-side Blob
+      window.location.href = '/api/export/bulletin';
     }
-    const blob = new Blob([bulletinText], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `MoSPI_APIx_Bulletin_${new Date().toISOString().slice(0, 10)}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    setDownloadingBulletin(false);
-  };
-
-  const handleCopyBulletin = () => {
-    navigator.clipboard.writeText(bulletinText);
-    setCopiedBulletin(true);
-    setTimeout(() => setCopiedBulletin(false), 2000);
   };
 
   // Official DGCA Corridor weights data
@@ -145,22 +120,27 @@ Index Base: 2024-Q1 = 100.0 | Specification: MoSPI PSD Lowe Formulation
                 </p>
               </div>
             </div>
-            <div className="agency-header-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <div className="agency-header-actions">
               <button
                 className="btn btn-primary btn-sm"
                 onClick={handleDownloadBulletin}
-                disabled={downloadingBulletin}
-                title="Download signed official MoSPI bulletin text file"
+                title="Directly download official MoSPI bulletin text file"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  ...(downloadSuccess ? { background: '#16a34a', borderColor: '#16a34a' } : {})
+                }}
               >
-                <Download size={15} />
-                {downloadingBulletin ? 'Exporting…' : 'Export Official MoSPI Bulletin'}
-              </button>
-              <button
-                className="btn btn-ghost btn-sm"
-                onClick={() => setBulletinModalOpen(true)}
-                title="Preview official statistical bulletin on screen"
-              >
-                <FileText size={15} /> Preview Release
+                {downloadSuccess ? (
+                  <>
+                    <CheckCircle2 size={15} /> Downloaded MoSPI Bulletin (.txt)
+                  </>
+                ) : (
+                  <>
+                    <Download size={15} /> Export Official MoSPI Bulletin
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -511,37 +491,6 @@ Index Base: 2024-Q1 = 100.0 | Specification: MoSPI PSD Lowe Formulation
             </div>
           </div>
         </section>
-      )}
-
-      {/* Official MoSPI Statistical Bulletin Modal */}
-      {bulletinModalOpen && (
-        <div className="modal-overlay" onClick={() => setBulletinModalOpen(false)}>
-          <div className="bulletin-modal-card glass anim-slide" onClick={e => e.stopPropagation()}>
-            <div className="bulletin-modal-head">
-              <div>
-                <span className="badge badge-accent">OFFICIAL RELEASE</span>
-                <h3>MoSPI Price Statistics Division Bulletin</h3>
-              </div>
-              <button className="btn btn-ghost btn-sm" onClick={() => setBulletinModalOpen(false)}>✕</button>
-            </div>
-            <pre className="bulletin-text-preview">{bulletinText}</pre>
-            <div className="bulletin-modal-actions">
-              <button className="btn btn-ghost" onClick={handleCopyBulletin}>
-                {copiedBulletin ? <><Check size={14} /> Copied to Clipboard</> : <><Copy size={14} /> Copy Text</>}
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleDownloadBulletin}
-                disabled={downloadingBulletin}
-              >
-                <Download size={15} /> {downloadingBulletin ? 'Exporting…' : 'Download Signed Bulletin Text'}
-              </button>
-              <button className="btn btn-ghost" onClick={() => setBulletinModalOpen(false)}>
-                Close Preview
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

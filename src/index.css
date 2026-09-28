@@ -1489,15 +1489,64 @@ input[type="range"]::-webkit-slider-thumb:hover {
   opacity: 0.35;
 }
 
-/* Hero Section */
+/* Hero Section with Atmospheric Aviation Carousel */
 .landing-hero {
-  padding: 64px max(28px, calc((100vw - 1280px) / 2)) 48px;
-  background: radial-gradient(circle at 50% 0%, rgba(22, 67, 91, 0.08) 0%, transparent 60%);
-  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+  overflow: hidden;
+  padding: 64px max(28px, calc((100vw - 1280px) / 2)) 52px;
+  background: #081924;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.hero-bg-carousel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-bg-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center center;
+  opacity: 0;
+  transform: scale(1.05);
+  transition: opacity 1.6s cubic-bezier(0.4, 0, 0.2, 1), transform 8s ease-out;
+}
+
+.hero-bg-slide.active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 25, 36, 0.82) 0%,
+    rgba(10, 31, 45, 0.90) 45%,
+    rgba(8, 25, 36, 0.98) 100%
+  );
+  backdrop-filter: blur(1.5px);
+}
+
+.hero-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.6;
 }
 
 .landing-hero-inner {
-  max-width: 1040px;
+  position: relative;
+  z-index: 1;
+  max-width: 1060px;
   margin: 0 auto;
   text-align: center;
   display: flex;
@@ -1512,34 +1561,43 @@ input[type="range"]::-webkit-slider-thumb:hover {
   margin-bottom: 20px;
 }
 
+.landing-hero-kicker .badge {
+  background: rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  color: #fbbf24;
+  font-weight: 700;
+}
+
 .kicker-tag {
   font-size: 0.75rem;
   font-family: var(--font-mono);
-  color: var(--text-secondary);
+  color: #94a3b8;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 
 .landing-hero-title {
-  font-size: clamp(2.2rem, 4.2vw, 3.4rem);
-  font-weight: 800;
+  font-size: clamp(2.3rem, 4.4vw, 3.6rem);
+  font-weight: 850;
   line-height: 1.15;
-  color: var(--accent-2);
+  color: #ffffff;
   margin-bottom: 20px;
   letter-spacing: -0.03em;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
 .title-accent {
-  color: var(--accent-warm);
+  color: #f59e0b;
 }
 
 .landing-hero-subtitle {
-  font-size: 1.1rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  max-width: 820px;
-  margin-bottom: 36px;
+  font-size: 1.12rem;
+  line-height: 1.65;
+  color: #d1e2ed;
+  max-width: 840px;
+  margin-bottom: 30px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
 }
 
 .landing-hero-actions {
@@ -1548,10 +1606,79 @@ input[type="range"]::-webkit-slider-thumb:hover {
   justify-content: center;
   gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 56px;
+  margin-bottom: 28px;
 }
 
-/* Landing Stats Grid */
+.landing-hero-actions .btn-primary {
+  background: #ffffff !important;
+  color: #0b1a24 !important;
+  border-color: #ffffff !important;
+  font-weight: 750 !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+.landing-hero-actions .btn-primary:hover {
+  background: #f0fdf4 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(255, 255, 255, 0.3) !important;
+}
+
+.landing-hero-actions .btn-ghost {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(8px);
+}
+
+.landing-hero-actions .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px);
+}
+
+/* Scraped Fleet Inventory Strip */
+.hero-fleet-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 40px;
+  padding: 8px 18px;
+  background: rgba(14, 38, 54, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 30px;
+  backdrop-filter: blur(10px);
+}
+
+.fleet-strip-label {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.06em;
+}
+
+.fleet-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fleet-pill {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* Landing Stats Grid (Frosted Glass on Dark Hero) */
 .landing-stats-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1559,40 +1686,85 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
 }
 
-.landing-stat-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+.landing-hero .landing-stat-card {
+  background: rgba(14, 38, 54, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--r-lg);
   padding: 18px 16px;
   text-align: left;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--t-fast), box-shadow var(--t-fast);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transition: transform var(--t-fast), box-shadow var(--t-fast), border-color var(--t-fast);
 }
 
-.landing-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--accent);
+.landing-hero .landing-stat-card:hover {
+  transform: translateY(-3px);
+  background: rgba(18, 48, 68, 0.88);
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
 }
 
-.landing-stat-card .stat-num {
-  font-size: 1.45rem;
+.landing-hero .landing-stat-card .stat-num {
+  font-size: 1.48rem;
   font-weight: 800;
   font-family: var(--font-mono);
-  color: var(--accent-2);
+  color: #ffffff;
   margin-bottom: 4px;
 }
 
-.landing-stat-card .stat-label {
+.landing-hero .landing-stat-card .stat-label {
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #e2e8f0;
   margin-bottom: 3px;
 }
 
-.landing-stat-card .stat-sub {
+.landing-hero .landing-stat-card .stat-sub {
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: #94a3b8;
+}
+
+/* Hero Carousel Slide Controls */
+.hero-slide-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.hero-slide-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  padding: 5px 14px;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.hero-slide-pill:hover,
+.hero-slide-pill.active {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: #d4af37;
+  color: #ffffff;
+}
+
+.hero-slide-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94a3b8;
+  transition: background var(--t-fast);
+}
+
+.hero-slide-pill.active .hero-slide-dot {
+  background: #d4af37;
 }
 
 /* Section Common */
@@ -2411,54 +2583,55 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .hero-bulletin-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: var(--bg-surface);
-  border: 1px solid rgba(22, 67, 91, 0.22);
-  box-shadow: 0 2px 8px rgba(16, 52, 72, 0.06);
+  gap: 9px;
+  background: rgba(14, 38, 54, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border-radius: 24px;
-  padding: 5px 14px 5px 10px;
-  color: var(--text-primary);
+  padding: 6px 16px 6px 12px;
+  color: #f1f5f9;
   cursor: pointer;
   transition: all var(--t-fast);
+  backdrop-filter: blur(12px);
   text-decoration: none;
   font-size: 0.8rem;
   font-family: var(--font-sans);
 }
 
 .hero-bulletin-btn:hover {
-  transform: translateY(-1px);
-  border-color: var(--accent);
-  box-shadow: 0 4px 14px rgba(22, 67, 91, 0.12);
-  background: #ffffff;
+  transform: translateY(-2px);
+  border-color: #d4af37;
+  background: rgba(18, 48, 68, 0.9);
+  box-shadow: 0 6px 24px rgba(212, 175, 55, 0.25);
 }
-
 
 .bulletin-division-tag {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #cbd5e1;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .bulletin-sep {
-  color: var(--border);
+  color: rgba(255, 255, 255, 0.3);
   font-weight: 300;
   font-size: 0.8rem;
 }
 
 .bulletin-title {
   font-weight: 600;
-  color: var(--accent-2);
+  color: #ffffff;
 }
 
 .bulletin-score {
   font-family: var(--font-mono);
   font-weight: 800;
-  color: var(--accent-1);
-  background: var(--accent-light);
-  padding: 1px 6px;
+  color: #7dd3fc;
+  background: rgba(14, 165, 233, 0.18);
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  padding: 1px 7px;
   border-radius: 4px;
   font-size: 0.76rem;
 }
@@ -2466,29 +2639,29 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .bulletin-delta {
   font-family: var(--font-mono);
   font-weight: 700;
-  color: var(--green-text);
+  color: #86efac;
   font-size: 0.74rem;
 }
 
 .bulletin-base {
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: #94a3b8;
 }
 
 .bulletin-arrow {
-  color: var(--text-muted);
+  color: #cbd5e1;
   transition: transform var(--t-fast);
 }
 
 .hero-bulletin-btn:hover .bulletin-arrow {
-  transform: translateX(2px);
-  color: var(--accent-1);
+  transform: translateX(3px);
+  color: #d4af37;
 }
 
 /* Technical Telemetry Ticker */
 .hero-ticker-box {
-  margin: 0 auto 32px;
-  max-width: 820px;
+  margin: 0 auto 30px;
+  max-width: 840px;
   width: 100%;
   min-height: 44px;
   display: flex;
@@ -2500,11 +2673,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: rgba(14, 38, 54, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 20px;
-  padding: 6px 18px;
-  box-shadow: var(--shadow-xs);
+  padding: 7px 20px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
   transition: all 0.25s ease;
 }
 
@@ -2512,8 +2686,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 700;
-  color: var(--accent-2);
-  background: var(--accent-light);
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.35);
   padding: 2px 7px;
   border-radius: 4px;
   text-transform: uppercase;
@@ -2522,14 +2697,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .ticker-sep {
-  color: var(--border);
+  color: rgba(255, 255, 255, 0.25);
   font-size: 0.75rem;
 }
 
 .hero-ticker-text {
-  font-size: 0.82rem;
+  font-size: 0.83rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #f1f5f9;
   letter-spacing: -0.01em;
 }
 

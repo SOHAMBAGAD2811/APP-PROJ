@@ -39,6 +39,33 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
   const [selectedCorridor, setSelectedCorridor] = useState('DEL-BOM');
   const [activeTab, setActiveTab] = useState('all');
   const [tickerIndex, setTickerIndex] = useState(0);
+  const [slideIndex, setSlideIndex] = useState(0);
+
+  // Dynamic atmospheric background slides (Neermalya photography approach)
+  const heroSlides = [
+    {
+      src: '/images/hero-airport-tarmac.jpg',
+      title: 'Tarmac Hub Operations',
+      desc: 'Delhi (DEL) & Mumbai (BOM) High-Density Trunk Corridors'
+    },
+    {
+      src: '/images/hero-flight-clouds.jpg',
+      title: 'Cruising Fleet Telemetry',
+      desc: 'Commercial Aviation Real-Time Price Index Monitoring'
+    },
+    {
+      src: '/images/hero-flight-wing.jpg',
+      title: 'Domestic Corridor Network',
+      desc: 'Stratified Advance-Purchase Lead-Time Yield Curves'
+    },
+  ];
+
+  useEffect(() => {
+    const slideTimer = setInterval(() => {
+      setSlideIndex(prev => (prev + 1) % heroSlides.length);
+    }, 6000);
+    return () => clearInterval(slideTimer);
+  }, [heroSlides.length]);
 
   // High-frequency technical highlights formatted as concrete system telemetry
   const tickerItems = [
@@ -329,8 +356,21 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
         </div>
       </div>
 
-      {/* ── Hero Section with Neermalya Dynamic Features ── */}
+      {/* ── Hero Section with Neermalya Dynamic Imagery & Atmospheric Backdrop ── */}
       <section className="landing-hero">
+        {/* Dynamic Background Image Carousel (Neermalya photography approach) */}
+        <div className="hero-bg-carousel" aria-hidden="true">
+          {heroSlides.map((slide, idx) => (
+            <div
+              key={slide.src}
+              className={`hero-bg-slide ${idx === slideIndex ? 'active' : ''}`}
+              style={{ backgroundImage: `url(${slide.src})` }}
+            />
+          ))}
+          <div className="hero-bg-overlay" />
+          <div className="hero-bg-grid" />
+        </div>
+
         <div className="landing-hero-inner">
           {/* Official Statistical Bulletin Release Badge */}
           <div className="hero-announcement-wrapper">
@@ -393,6 +433,21 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
             </a>
           </div>
 
+          {/* Scraped Domestic Fleet & Aggregators Inventory Strip */}
+          <div className="hero-fleet-strip">
+            <span className="fleet-strip-label">DIRECT CARRIERS &amp; AGGREGATORS SCRAPED:</span>
+            <div className="fleet-badges">
+              <span className="fleet-pill">IndiGo (6E)</span>
+              <span className="fleet-pill">Air India (AI)</span>
+              <span className="fleet-pill">AIX Connect (IX)</span>
+              <span className="fleet-pill">Akasa Air (QP)</span>
+              <span className="fleet-pill">SpiceJet (SG)</span>
+              <span className="fleet-pill">EaseMyTrip</span>
+              <span className="fleet-pill">Cleartrip</span>
+              <span className="fleet-pill">Google Flights</span>
+            </div>
+          </div>
+
           {/* Quick Metrics Bar */}
           <div className="landing-stats-grid">
             <div className="landing-stat-card">
@@ -420,6 +475,21 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
               <div className="stat-label">DGCA Benchmark Correlation</div>
               <div className="stat-sub">18-month empirical backtest</div>
             </div>
+          </div>
+
+          {/* Interactive Slide Scene Switchers */}
+          <div className="hero-slide-controls">
+            {heroSlides.map((slide, idx) => (
+              <button
+                key={slide.src}
+                className={`hero-slide-pill ${idx === slideIndex ? 'active' : ''}`}
+                onClick={() => setSlideIndex(idx)}
+                title={slide.desc}
+              >
+                <span className="hero-slide-dot" />
+                <span>{slide.title}</span>
+              </button>
+            ))}
           </div>
         </div>
       </section>

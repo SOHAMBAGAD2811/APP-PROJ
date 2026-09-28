@@ -141,7 +141,7 @@ export default function LandingPage({ onLaunchTerminal, onGoToAuth }) {
     {
       feature: 'Empirical Benchmark Validation',
       existing: 'No historical backtesting or cross-validation against published aviation statistics.',
-      aira: 'Empirically back-tested against 18 months of published DGCA domestic average-fare benchmarks (r = 0.942, low RMSE, Theil's U < 0.20).',
+      aira: "Empirically back-tested against 18 months of published DGCA domestic average-fare benchmarks (r = 0.942, low RMSE, Theil\u2019s U < 0.20).",
       tag: 'DGCA Backtested'
     },
     {

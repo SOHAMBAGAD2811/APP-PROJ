@@ -21,7 +21,9 @@ import {
   ArrowRight,
   RefreshCw,
   Search,
-  Scale
+  Scale,
+  Copy,
+  Check
 } from 'lucide-react';
 import SimulatorCard from './SimulatorCard';
 import RouteHeatmap from './RouteHeatmap';
@@ -46,6 +48,74 @@ export default function AgencyDashboard({
 }) {
   const userAgency = currentUser?.agency || agency || 'mospi';
   const [bulletinModalOpen, setBulletinModalOpen] = useState(false);
+  const [copiedBulletin, setCopiedBulletin] = useState(false);
+  const [downloadingBulletin, setDownloadingBulletin] = useState(false);
+
+  const bulletinText = `GOVERNMENT OF INDIA
+MINISTRY OF STATISTICS AND PROGRAMME IMPLEMENTATION
+DATA INFORMATICS & INNOVATION DIVISION / PRICE STATISTICS DIVISION
+SARDAR PATEL BHAWAN, SANSAD MARG, NEW DELHI - 110001
+======================================================================
+MONTHLY PERIODIC AIRFARE PRICE INDEX (APIx) BULLETIN
+Reference Month: September 2025 | Release Date: ${new Date().toLocaleDateString('en-IN', { dateStyle: 'full' })}
+Index Base: 2024-Q1 = 100.0 | Specification: MoSPI PSD Lowe Formulation
+----------------------------------------------------------------------
+1. HEADLINE NATIONAL INDEX:
+   National Composite APIx : 114.82 (+1.42% 24h | +14.82% vs Base)
+   Corridors in Basket     : 6 High-Density Corridors (~60% Volume)
+   Methodology Formula     : Lowe Price Index It = 100 * [∑ wi (Pit/Pi0)] / ∑ wi
+
+2. CORRIDOR-WISE INDICES & WEIGHTS:
+   - Delhi (DEL) - Mumbai (BOM)    [Weight: 24.5%] : Index 118.2 | Median: ₹6,450
+   - Delhi (DEL) - Bengaluru (BLR) [Weight: 19.8%] : Index 112.4 | Median: ₹7,100
+   - Mumbai (BOM) - Bengaluru (BLR)[Weight: 17.2%] : Index 109.8 | Median: ₹4,850
+   - Delhi (DEL) - Kolkata (CCU)   [Weight: 14.1%] : Index 116.5 | Median: ₹6,920
+   - Chennai (MAA) - Delhi (DEL)   [Weight: 12.6%] : Index 115.1 | Median: ₹7,340
+   - Bengaluru (BLR)-Hyderabad(HYD)[Weight: 11.8%] : Index 108.3 | Median: ₹3,890
+
+3. METHODOLOGICAL COMPLIANCE:
+   - Stratified Lead Times : T+1, T+7, T+15, T+30, T+45 Days
+   - Statistical Hygiene   : Log-MAD Outlier Filter (k=3.0) applied
+   - Validation Status     : Pearson r = 0.942 vs Historical DGCA Benchmarks
+======================================================================`;
+
+  const handleDownloadBulletin = async () => {
+    setDownloadingBulletin(true);
+    try {
+      const res = await fetch('/api/export/bulletin');
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `MoSPI_APIx_Bulletin_${new Date().toISOString().slice(0, 10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setDownloadingBulletin(false);
+        return;
+      }
+    } catch {
+      // fallback to client-side Blob
+    }
+    const blob = new Blob([bulletinText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `MoSPI_APIx_Bulletin_${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setDownloadingBulletin(false);
+  };
+
+  const handleCopyBulletin = () => {
+    navigator.clipboard.writeText(bulletinText);
+    setCopiedBulletin(true);
+    setTimeout(() => setCopiedBulletin(false), 2000);
+  };
 
   // Official DGCA Corridor weights data
   const corridors = [
@@ -75,12 +145,22 @@ export default function AgencyDashboard({
                 </p>
               </div>
             </div>
-            <div className="agency-header-actions">
+            <div className="agency-header-actions" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => setBulletinModalOpen(true)}
+                onClick={handleDownloadBulletin}
+                disabled={downloadingBulletin}
+                title="Download signed official MoSPI bulletin text file"
               >
-                <FileText size={15} /> Export Official MoSPI Bulletin
+                <Download size={15} />
+                {downloadingBulletin ? 'Exporting…' : 'Export Official MoSPI Bulletin'}
+              </button>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setBulletinModalOpen(true)}
+                title="Preview official statistical bulletin on screen"
+              >
+                <FileText size={15} /> Preview Release
               </button>
             </div>
           </div>
@@ -444,43 +524,18 @@ export default function AgencyDashboard({
               </div>
               <button className="btn btn-ghost btn-sm" onClick={() => setBulletinModalOpen(false)}>✕</button>
             </div>
-            <pre className="bulletin-text-preview">
-{`GOVERNMENT OF INDIA
-MINISTRY OF STATISTICS AND PROGRAMME IMPLEMENTATION
-DATA INFORMATICS & INNOVATION DIVISION / PRICE STATISTICS DIVISION
-SARDAR PATEL BHAWAN, SANSAD MARG, NEW DELHI - 110001
-======================================================================
-MONTHLY PERIODIC AIRFARE PRICE INDEX (APIx) BULLETIN
-Reference Month: September 2025 | Release Date: ${new Date().toLocaleDateString('en-IN', { dateStyle: 'full' })}
-Index Base: 2024-Q1 = 100.0 | Specification: MoSPI PSD Lowe Formulation
-----------------------------------------------------------------------
-1. HEADLINE NATIONAL INDEX:
-   National Composite APIx : 114.82 (+1.42% 24h | +14.82% vs Base)
-   Corridors in Basket     : 6 High-Density Corridors (~60% Volume)
-   Methodology Formula     : Lowe Price Index It = 100 * [∑ wi (Pit/Pi0)] / ∑ wi
-
-2. CORRIDOR-WISE INDICES & WEIGHTS:
-   - Delhi (DEL) - Mumbai (BOM)    [Weight: 24.5%] : Index 118.2 | Median: ₹6,450
-   - Delhi (DEL) - Bengaluru (BLR) [Weight: 19.8%] : Index 112.4 | Median: ₹7,100
-   - Mumbai (BOM) - Bengaluru (BLR)[Weight: 17.2%] : Index 109.8 | Median: ₹4,850
-   - Delhi (DEL) - Kolkata (CCU)   [Weight: 14.1%] : Index 116.5 | Median: ₹6,920
-   - Chennai (MAA) - Delhi (DEL)   [Weight: 12.6%] : Index 115.1 | Median: ₹7,340
-   - Bengaluru (BLR)-Hyderabad(HYD)[Weight: 11.8%] : Index 108.3 | Median: ₹3,890
-
-3. METHODOLOGICAL COMPLIANCE:
-   - Stratified Lead Times : T+1, T+7, T+15, T+30, T+45 Days
-   - Statistical Hygiene   : Log-MAD Outlier Filter (k=3.0) applied
-   - Validation Status     : Pearson r = 0.942 vs Historical DGCA Benchmarks
-======================================================================`}
-            </pre>
+            <pre className="bulletin-text-preview">{bulletinText}</pre>
             <div className="bulletin-modal-actions">
-              <a
-                href="/api/export/bulletin"
-                download="MoSPI_APIx_Bulletin.txt"
+              <button className="btn btn-ghost" onClick={handleCopyBulletin}>
+                {copiedBulletin ? <><Check size={14} /> Copied to Clipboard</> : <><Copy size={14} /> Copy Text</>}
+              </button>
+              <button
                 className="btn btn-primary"
+                onClick={handleDownloadBulletin}
+                disabled={downloadingBulletin}
               >
-                <Download size={15} /> Download Signed Bulletin Text
-              </a>
+                <Download size={15} /> {downloadingBulletin ? 'Exporting…' : 'Download Signed Bulletin Text'}
+              </button>
               <button className="btn btn-ghost" onClick={() => setBulletinModalOpen(false)}>
                 Close Preview
               </button>

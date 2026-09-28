@@ -1526,21 +1526,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(8, 25, 36, 0.82) 0%,
-    rgba(10, 31, 45, 0.90) 45%,
-    rgba(8, 25, 36, 0.98) 100%
+    rgba(8, 25, 36, 0.55) 0%,
+    rgba(10, 31, 45, 0.70) 45%,
+    rgba(8, 25, 36, 0.88) 100%
   );
-  backdrop-filter: blur(1.5px);
 }
 
 .hero-bg-grid {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  opacity: 0.6;
+  display: none;
 }
 
 .landing-hero-inner {
@@ -3542,57 +3535,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
   opacity: 0.6;
 }
 
-/* Top accent border per stat card variant */
-.landing-hero .landing-stat-card.stat-accent-gold {
-  border-top: 2px solid rgba(212, 175, 55, 0.65);
-}
-.landing-hero .landing-stat-card.stat-accent-gold .stat-accent-icon {
-  color: #fbbf24;
-  opacity: 1;
-}
-.landing-hero .landing-stat-card.stat-accent-gold .stat-num {
-  color: #fde68a;
+/* Unified stat card accent — single neutral border, no per-card colors */
+.landing-hero .landing-stat-card[class*="stat-accent-"] {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.landing-hero .landing-stat-card.stat-accent-sky {
-  border-top: 2px solid rgba(125, 211, 252, 0.55);
-}
-.landing-hero .landing-stat-card.stat-accent-sky .stat-accent-icon {
-  color: #7dd3fc;
+.landing-hero .landing-stat-card .stat-accent-icon {
+  color: rgba(255, 255, 255, 0.45);
   opacity: 1;
-}
-.landing-hero .landing-stat-card.stat-accent-sky .stat-num {
-  color: #bae6fd;
-}
-
-.landing-hero .landing-stat-card.stat-accent-slate {
-  border-top: 2px solid rgba(148, 163, 184, 0.45);
-}
-.landing-hero .landing-stat-card.stat-accent-slate .stat-accent-icon {
-  color: #94a3b8;
-  opacity: 1;
-}
-
-.landing-hero .landing-stat-card.stat-accent-teal {
-  border-top: 2px solid rgba(20, 184, 166, 0.5);
-}
-.landing-hero .landing-stat-card.stat-accent-teal .stat-accent-icon {
-  color: #5eead4;
-  opacity: 1;
-}
-.landing-hero .landing-stat-card.stat-accent-teal .stat-num {
-  color: #99f6e4;
-}
-
-.landing-hero .landing-stat-card.stat-accent-amber {
-  border-top: 2px solid rgba(245, 158, 11, 0.55);
-}
-.landing-hero .landing-stat-card.stat-accent-amber .stat-accent-icon {
-  color: #fbbf24;
-  opacity: 1;
-}
-.landing-hero .landing-stat-card.stat-accent-amber .stat-num {
-  color: #fde68a;
 }
 
 /* ── Scroll Indicator below Hero ── */

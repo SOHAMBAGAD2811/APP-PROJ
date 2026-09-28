@@ -15,7 +15,10 @@ import {
   Terminal,
   LogOut,
   RefreshCw,
-  Info
+  Info,
+  TrendingUp,
+  Plane,
+  Database
 } from 'lucide-react';
 
 export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
@@ -126,25 +129,33 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
 
     const userClean = username.trim() || 'official_user';
     const lowerUser = userClean.toLowerCase();
-    const lowerOrg = (organization || '').toLowerCase();
 
-    // Determine agency from username or selected organization
-    let detectedAgency = 'mospi';
+    const agencyOrgMap = {
+      mospi: 'Ministry of Statistics and Programme Implementation (MoSPI)',
+      rbi: 'Reserve Bank of India (RBI)',
+      dgca: 'Directorate General of Civil Aviation (DGCA)',
+      nso: 'National Statistical Office (NSO)',
+    };
+
+    // Determine agency from selected agency or username
+    let detectedAgency = selectedAgency || 'mospi';
     let detectedRole = 'mospi_analyst';
 
-    if (lowerUser.includes('rbi') || lowerOrg.includes('rbi') || lowerOrg.includes('reserve bank')) {
+    if (lowerUser.includes('rbi') || selectedAgency === 'rbi') {
       detectedAgency = 'rbi';
       detectedRole = 'rbi_researcher';
-    } else if (lowerUser.includes('dgca') || lowerOrg.includes('dgca') || lowerOrg.includes('aviation')) {
+    } else if (lowerUser.includes('dgca') || selectedAgency === 'dgca') {
       detectedAgency = 'dgca';
       detectedRole = 'dgca_officer';
-    } else if (lowerUser.includes('nso') || lowerOrg.includes('nso') || lowerOrg.includes('national statistical')) {
+    } else if (lowerUser.includes('nso') || selectedAgency === 'nso') {
       detectedAgency = 'nso';
       detectedRole = 'nso_statistician';
-    } else if (lowerUser.includes('admin') || lowerOrg.includes('admin')) {
+    } else if (lowerUser.includes('admin')) {
       detectedAgency = 'mospi';
       detectedRole = 'admin';
     }
+
+    const orgName = agencyOrgMap[detectedAgency] || 'Ministry of Statistics and Programme Implementation (MoSPI)';
 
     const formattedName = userClean
       .replace(/[._-]/g, ' ')
@@ -153,7 +164,7 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
     const authedUser = {
       username: userClean,
       fullName: formattedName || 'Institutional Officer',
-      organization: organization || 'Ministry of Statistics and Programme Implementation',
+      organization: orgName,
       department: detectedAgency.toUpperCase() + ' Operations',
       role: detectedRole,
       agency: detectedAgency,
@@ -254,6 +265,50 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
         </div>
 
 
+
+        {/* If already authenticated, show non-blocking session notice */}
+        {currentUser && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'rgba(37,99,235,0.06)',
+            border: '1px solid rgba(37,99,235,0.25)',
+            borderRadius: '10px',
+            padding: '14px 20px',
+            marginBottom: '24px',
+            gap: '16px',
+            flexWrap: 'wrap'
+          }}>
+            <div>
+              <div style={{ fontWeight: 700, color: 'var(--accent)', fontSize: '0.92rem' }}>
+                Active Session Detected
+              </div>
+              <div style={{ fontSize: '0.86rem', color: 'var(--text-primary)', marginTop: '2px' }}>
+                Logged in as <strong>{currentUser.fullName || currentUser.username}</strong> ({currentUser.organization} · <em>{currentUser.role}</em>)
+              </div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                You can authenticate as another officer/agency below or proceed directly to your terminal.
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                className="btn btn-sm btn-primary"
+                onClick={() => onAuthSuccess && onAuthSuccess(currentUser)}
+              >
+                Enter Terminal &rarr;
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={handleLogout}
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Status Alerts */}
         {errorMsg && (
@@ -522,24 +577,30 @@ export default function AuthPage({ onAuthSuccess, onCancel, initialUser }) {
               </div>
 
               <div className="demo-accounts-list">
-                {demoAccounts.map((acc) => (
-                  <div
-                    key={acc.id}
-                    className={`demo-acc-item ${username === acc.user ? 'active-demo' : ''}`}
-                    onClick={() => handleSelectDemo(acc)}
-                  >
-                    <div className="demo-acc-top">
-                      <strong>{acc.label}</strong>
-                      <span className="badge badge-accent" style={{ fontSize: '0.64rem' }}>{acc.badge}</span>
+                {demoAccounts.map((acc) => {
+                  const IconComp = acc.id === 'mospi' ? Landmark : acc.id === 'rbi' ? TrendingUp : acc.id === 'dgca' ? Plane : acc.id === 'nso' ? Database : Shield;
+                  return (
+                    <div
+                      key={acc.id}
+                      className={`demo-acc-item ${username === acc.user ? 'active-demo' : ''}`}
+                      onClick={() => handleSelectDemo(acc)}
+                    >
+                      <div className="demo-acc-top">
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <IconComp size={15} style={{ color: 'var(--accent)' }} />
+                          <strong>{acc.label}</strong>
+                        </span>
+                        <span className="badge badge-accent" style={{ fontSize: '0.64rem' }}>{acc.badge}</span>
+                      </div>
+                      <div className="demo-acc-org">{acc.org}</div>
+                      <div className="demo-acc-desc">{acc.desc}</div>
+                      <div className="demo-acc-creds">
+                        <span>User: <code>{acc.user}</code></span>
+                        <span className="badge badge-outline" style={{ fontSize: '0.64rem' }}>Select Profile</span>
+                      </div>
                     </div>
-                    <div className="demo-acc-org">{acc.org}</div>
-                    <div className="demo-acc-desc">{acc.desc}</div>
-                    <div className="demo-acc-creds">
-                      <span>User: <code>{acc.user}</code></span>
-                      <span className="badge badge-outline" style={{ fontSize: '0.64rem' }}>1-Click Auth</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="demo-security-note">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Component } from 'react';
 import {
   Plane,
   Scale,
@@ -18,8 +18,58 @@ import {
   Sliders,
   Terminal,
   Layers,
-  Code2
+  Code2,
+  AlertTriangle
 } from 'lucide-react';
+
+class ViewErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    console.error('AiRA View Router Error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '80px 24px', textAlign: 'center', maxWidth: 640, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', padding: 14, background: 'rgba(239,68,68,0.1)', borderRadius: '50%', color: 'var(--red, #ef4444)', marginBottom: 16 }}>
+            <AlertTriangle size={32} />
+          </div>
+          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: 8 }}>
+            Interface Component Error
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.92rem', marginBottom: 24, lineHeight: 1.5 }}>
+            {this.state.error?.message || 'An unexpected rendering error occurred in this view.'}
+          </p>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                this.setState({ hasError: false, error: null });
+                if (this.props.onGoHome) this.props.onGoHome();
+                else window.location.href = '/';
+              }}
+            >
+              Return to Overview
+            </button>
+            <button
+              className="btn btn-ghost"
+              onClick={() => window.location.reload()}
+            >
+              Reload Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 import SearchPanel    from './components/SearchPanel';
 import StatsBar       from './components/StatsBar';
 import FlightsTable   from './components/FlightsTable';
@@ -319,6 +369,12 @@ export default function App() {
             >
               <Code2 size={14} /> API Docs
             </button>
+            <button
+              className={`app-nav-btn ${view === 'auth' ? 'active' : ''}`}
+              onClick={() => navigateTo('auth')}
+            >
+              <Shield size={14} /> Official Sign In
+            </button>
           </nav>
         </div>
 
@@ -352,10 +408,19 @@ export default function App() {
 
           {currentUser ? (
             <div className="header-user-badge">
-              <div className="header-user-avatar">
+              <div
+                className="header-user-avatar"
+                style={{ cursor: 'pointer' }}
+                onClick={() => navigateTo('auth')}
+                title="Switch agency or review credentials"
+              >
                 {currentUser.username ? currentUser.username[0].toUpperCase() : 'U'}
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div
+                style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+                onClick={() => navigateTo('auth')}
+                title="Switch agency or review credentials"
+              >
                 <span className="header-user-name">{currentUser.fullName || currentUser.username}</span>
                 <span className="header-user-role">{currentUser.role?.toUpperCase()}</span>
               </div>
@@ -380,39 +445,40 @@ export default function App() {
         </div>
       </header>
 
-      {/* ── View Router ── */}
-      {view === 'landing' && (
-        <LandingPage
-          onLaunchTerminal={(agencyOrHash = '') => {
-            if (['mospi', 'rbi', 'dgca', 'nso', 'all'].includes(agencyOrHash)) {
-              setActiveAgency(agencyOrHash);
+      {/* ── View Router with ErrorBoundary ── */}
+      <ViewErrorBoundary onGoHome={() => navigateTo('landing')}>
+        {view === 'landing' && (
+          <LandingPage
+            onLaunchTerminal={(agencyOrHash = '') => {
+              if (['mospi', 'rbi', 'dgca', 'nso', 'all'].includes(agencyOrHash)) {
+                setActiveAgency(agencyOrHash);
+                navigateTo('terminal');
+              } else {
+                navigateTo('terminal', agencyOrHash);
+              }
+            }}
+            onGoToAuth={() => navigateTo('auth')}
+            onGoToDocs={() => navigateTo('docs')}
+          />
+        )}
+
+        {view === 'docs' && (
+          <DocsPage onGoToLanding={() => navigateTo('landing')} />
+        )}
+
+        {view === 'auth' && (
+          <AuthPage
+            onAuthSuccess={(user) => {
+              setCurrentUser(user);
+              if (user?.agency) {
+                setActiveAgency(user.agency);
+              }
               navigateTo('terminal');
-            } else {
-              navigateTo('terminal', agencyOrHash);
-            }
-          }}
-          onGoToAuth={() => navigateTo('auth')}
-          onGoToDocs={() => navigateTo('docs')}
-        />
-      )}
-
-      {view === 'docs' && (
-        <DocsPage onGoToLanding={() => navigateTo('landing')} />
-      )}
-
-      {view === 'auth' && (
-        <AuthPage
-          onAuthSuccess={(user) => {
-            setCurrentUser(user);
-            if (user?.agency) {
-              setActiveAgency(user.agency);
-            }
-            navigateTo('terminal');
-          }}
-          onCancel={() => navigateTo('landing')}
-          initialUser={currentUser}
-        />
-      )}
+            }}
+            onCancel={() => navigateTo('landing')}
+            initialUser={currentUser}
+          />
+        )}
 
       {view === 'terminal' && (
         <main className="app-main">
@@ -601,6 +667,7 @@ export default function App() {
           </div>
         </main>
       )}
+      </ViewErrorBoundary>
 
       {/* Floating AI Chat Assistant */}
       <FloatingChatWidget

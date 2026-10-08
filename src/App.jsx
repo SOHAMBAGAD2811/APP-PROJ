@@ -19,7 +19,9 @@ import {
   Terminal,
   Layers,
   Code2,
-  AlertTriangle
+  AlertTriangle,
+  FileText,
+  ExternalLink
 } from 'lucide-react';
 
 class ViewErrorBoundary extends Component {
@@ -381,29 +383,46 @@ export default function App() {
         {/* Right Tools: Sweep Trigger (in terminal) + User / Auth Portal */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {view === 'terminal' && (
-            <button
-              onClick={triggerSweep}
-              disabled={sweepState === 'running'}
-              className={`btn btn-sm ${sweepState === 'done' ? 'btn-primary' : sweepState === 'error' ? '' : 'btn-ghost'}`}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                ...(sweepState === 'error' ? { color: 'var(--red)', borderColor: 'var(--red-border)', background: 'var(--red-bg)' } : {}),
-              }}
-            >
-              <Zap size={14} />
-              {sweepState === 'running' ? 'Updating fares…' : sweepState === 'done' ? '✓ Update complete' : sweepState === 'error' ? '✕ Update failed' : 'Run basket sweep'}
-              {sweepState === 'running' && (
-                <span style={{
-                  width: 12, height: 12, borderRadius: '50%',
-                  border: '2px solid rgba(37,99,235,0.25)',
-                  borderTopColor: 'var(--accent-1)',
-                  animation: 'spin 0.7s linear infinite',
-                  display: 'inline-block',
-                }} />
-              )}
-            </button>
+            <>
+              <a
+                href="https://drive.google.com/file/d/1E9WFpJxbBOduNnaWg7Gew4w16bxafzlh/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-sm btn-ghost"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none', color: 'var(--accent-1)',
+                  border: '1px solid var(--border)'
+                }}
+                title="View Manual Paper Calculations Document on Google Drive"
+              >
+                <FileText size={14} color="var(--accent-1)" />
+                Manual Calc (Drive)
+              </a>
+              <button
+                onClick={triggerSweep}
+                disabled={sweepState === 'running'}
+                className={`btn btn-sm ${sweepState === 'done' ? 'btn-primary' : sweepState === 'error' ? '' : 'btn-ghost'}`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  fontSize: '0.8rem',
+                  fontWeight: 600,
+                  ...(sweepState === 'error' ? { color: 'var(--red)', borderColor: 'var(--red-border)', background: 'var(--red-bg)' } : {}),
+                }}
+              >
+                <Zap size={14} />
+                {sweepState === 'running' ? 'Updating fares…' : sweepState === 'done' ? '✓ Update complete' : sweepState === 'error' ? '✕ Update failed' : 'Run basket sweep'}
+                {sweepState === 'running' && (
+                  <span style={{
+                    width: 12, height: 12, borderRadius: '50%',
+                    border: '2px solid rgba(37,99,235,0.25)',
+                    borderTopColor: 'var(--accent-1)',
+                    animation: 'spin 0.7s linear infinite',
+                    display: 'inline-block',
+                  }} />
+                )}
+              </button>
+            </>
           )}
 
           {currentUser ? (
@@ -546,14 +565,30 @@ export default function App() {
               <h2>Need a specific route?</h2>
               <p>Scrape live fares for custom airport pairs, dates, and cabin classes.</p>
             </div>
-            <button
-              className={`btn ${manualOpen ? 'btn-ghost' : 'btn-primary'} btn-lg`}
-              onClick={() => setManualOpen(!manualOpen)}
-            >
-              <Plane size={16} />
-              {manualOpen ? 'Hide route search' : 'Manually scrape a path'}
-              {!manualOpen && <ArrowRight size={16} />}
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <a
+                href="https://drive.google.com/file/d/1E9WFpJxbBOduNnaWg7Gew4w16bxafzlh/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-ghost btn-lg"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  textDecoration: 'none', color: 'var(--accent-1)', border: '1px solid var(--border)'
+                }}
+                title="View Manual Paper Calculations Document on Google Drive"
+              >
+                <FileText size={16} color="var(--accent-1)" />
+                Manual Calc (Drive)
+              </a>
+              <button
+                className={`btn ${manualOpen ? 'btn-ghost' : 'btn-primary'} btn-lg`}
+                onClick={() => setManualOpen(!manualOpen)}
+              >
+                <Plane size={16} />
+                {manualOpen ? 'Hide route search' : 'Manually scrape a path'}
+                {!manualOpen && <ArrowRight size={16} />}
+              </button>
+            </div>
           </div>
 
           {manualOpen && (

@@ -112,6 +112,9 @@ export default function DocsPage({ onGoToLanding }) {
           <a href="https://www.dgca.gov.in" target="_blank" rel="noopener noreferrer" className="docs-ext-link">
             DGCA Statistics <ExternalLink size={11} />
           </a>
+          <a href="https://drive.google.com/file/d/1E9WFpJxbBOduNnaWg7Gew4w16bxafzlh/view?usp=sharing" target="_blank" rel="noopener noreferrer" className="docs-ext-link" style={{ color: 'var(--accent-1)' }}>
+            Manual Calc (Drive) <ExternalLink size={11} />
+          </a>
         </div>
       </aside>
 

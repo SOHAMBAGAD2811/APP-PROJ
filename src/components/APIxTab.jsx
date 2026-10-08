@@ -467,6 +467,17 @@ export default function APIxTab() {
             Export CSV
           </a>
           <a
+            href="https://drive.google.com/file/d/1E9WFpJxbBOduNnaWg7Gew4w16bxafzlh/view?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.8rem', padding: '7px 12px', background: 'var(--bg-card)', border: '1px solid var(--border)', textDecoration: 'none', color: 'inherit' }}
+            title="View Official Manual Paper Calculations Document on Google Drive"
+          >
+            <ExternalLink size={14} color="var(--accent-1)" />
+            Manual Calculations (Drive)
+          </a>
+          <a
             href="/api/export/bulletin"
             target="_blank"
             rel="noreferrer"
@@ -560,6 +571,18 @@ export default function APIxTab() {
                 • <strong>Coverage Transparency:</strong> Observed weights sum to coverage percentage; missing cells are reported explicitly rather than silently assumed.
               </div>
             </div>
+          </div>
+          <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem' }}>
+            <ExternalLink size={14} color="var(--accent-1)" />
+            <span style={{ color: 'var(--text-muted)' }}>Official Paper Reference:</span>
+            <a
+              href="https://drive.google.com/file/d/1E9WFpJxbBOduNnaWg7Gew4w16bxafzlh/view?usp=sharing"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'var(--accent-1)', textDecoration: 'underline', fontWeight: 600 }}
+            >
+              View Manual Paper Calculations Document (Google Drive) ↗
+            </a>
           </div>
         </div>
       )}
